@@ -2,12 +2,14 @@
 #define MENU_H
 
 #include "geometricobject.h"
+#include "plotter.h"
 #include <vector>
 
 class Menu {
     public:
-        void processarOpcao(int opcao);
-        void exibirMenu();
+        void processOption(int option);
+        void manageObjects();
+        void showMenu();
     private:
         std::vector<geometricObject *> geometricObjects;
 };

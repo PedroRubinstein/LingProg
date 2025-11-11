@@ -2,6 +2,6 @@
 
 int main() {
     Menu menu;
-    menu.exibirMenu();
+    menu.showMenu();
     return 0;
 }

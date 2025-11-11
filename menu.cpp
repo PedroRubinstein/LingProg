@@ -9,7 +9,7 @@ using std::cin;
 using std::cout;
 using std::endl;
 
-void Menu::exibirMenu() {
+void Menu::showMenu() {
     while (true) {
         cout << "\n===== Menu do usuário =====" << endl;
         cout << "1 - Gerenciamento de dados geométricos" << endl;
@@ -25,8 +25,8 @@ void Menu::exibirMenu() {
         cout << "0 - Sair" << endl;
 
         cout << "\nEscolha uma opção: ";
-        int opcao;
-        if (!(cin >> opcao)) {
+        int option;
+        if (!(cin >> option)) {
             cout << "Entrada inválida. Digite um número entre 0 e 5." << endl;
             cin.clear();
             cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -36,22 +36,17 @@ void Menu::exibirMenu() {
         // clear the rest of the line
         cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-        if (opcao == 0) {
+        if (option == 0) {
             cout << "Saindo...\n";
             break;
         }
 
-            processarOpcao(opcao);
+            processOption(option);
     }
 }
 
-void esperarEnter() {
-    std::cout << "\nPressione Enter para retornar ao menu...";
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-}
-
-void Menu::processarOpcao(int opcao) {
-    switch (opcao) {
+void Menu::processOption(int option) {
+    switch (option) {
         case 1: {
             cout << "\n[1] Gerenciamento de dados geométricos selecionado." << endl;
             cout << "Criando alguns objetos de teste..." << endl;
@@ -96,6 +91,7 @@ void Menu::processarOpcao(int opcao) {
             break;
         case 5:
             cout << "\n[5] Visualização selecionada." << endl;
+            Plotter::plot(geometricObjects);
             break;
         default:
             cout << "\nOpção inválida. Escolha um número entre 0 e 5." << endl;

@@ -7,6 +7,8 @@
 
 class Menu {
     public:
+        Menu() = default;
+        ~Menu();
         void showMenu();
     private:
         void processOption(int option);

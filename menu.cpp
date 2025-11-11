@@ -9,6 +9,12 @@ using std::cin;
 using std::cout;
 using std::endl;
 
+Menu::~Menu() {
+    for (auto obj : geometricObjects) {
+        delete obj;
+    }
+}
+
 int Menu::getNumericInput() {
     int input;
     while (true) {

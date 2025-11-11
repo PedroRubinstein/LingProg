@@ -9,6 +9,22 @@ using std::cin;
 using std::cout;
 using std::endl;
 
+int Menu::getNumericInput() {
+    int input;
+    while (true) {
+        if (!(cin >> input)) {
+            cout << "Entrada inválida. Digite um número entre 0 e 5." << endl;
+            cin.clear();
+            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            continue;
+        }
+
+        // clear the rest of the line
+        cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        return input;
+    }
+}
+
 void Menu::showMenu() {
     while (true) {
         cout << "\n===== Menu do usuário =====" << endl;
@@ -25,16 +41,7 @@ void Menu::showMenu() {
         cout << "0 - Sair" << endl;
 
         cout << "\nEscolha uma opção: ";
-        int option;
-        if (!(cin >> option)) {
-            cout << "Entrada inválida. Digite um número entre 0 e 5." << endl;
-            cin.clear();
-            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            continue;
-        }
-
-        // clear the rest of the line
-        cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        int option = getNumericInput();
 
         if (option == 0) {
             cout << "Saindo...\n";
@@ -49,37 +56,9 @@ void Menu::processOption(int option) {
     switch (option) {
         case 1: {
             cout << "\n[1] Gerenciamento de dados geométricos selecionado." << endl;
-            cout << "Criando alguns objetos de teste..." << endl;
-
-            // Ponto simples
-            geometricObjects.push_back(new Point(0.0, 0.0));
-
-            // Quadrado
-            Polygon *square = new Polygon();
-            square->addVertex(Point(0.0, 0.0));
-            square->addVertex(Point(1.0, 0.0));
-            square->addVertex(Point(1.0, 1.0));
-            square->addVertex(Point(0.0, 1.0));
-            geometricObjects.push_back(square);
-
-            // Circunferência com centro no meio do quadrado
-            geometricObjects.push_back(new Circumference(Point(0.5, 0.5), 0.5));
-
-            cout << "\nObjetos criados:\n";
-            for (const auto &o : geometricObjects) {
-                cout << "- ";
-                o->print();
-                cout << endl;
-                cout << "  Tipo: ";
-                switch (o->type()) {
-                    case geometricObject::Type::Point: cout << "Ponto" << endl; break;
-                    case geometricObject::Type::Polygon: cout << "Polígono" << endl; break;
-                    case geometricObject::Type::Circumference: cout << "Circunferência" << endl; break;
-                    default: cout << "Desconhecido" << endl; break;
-                }
-            }
-
-            break; }
+            manageObjects();
+            break;
+        }
         case 2:
             cout << "\n[2] Calculadora geométrica simples selecionada." << endl;
             break;
@@ -106,3 +85,95 @@ void Menu::processOption(int option) {
     std::getline(cin, dummy);
 }
 
+void Menu::manageObjects() {
+    cout << endl << "Selecione uma subopção:" << endl;
+    cout << "1 - Adicionar objeto" << endl;
+    cout << "2 - Remover objeto" << endl;
+    cout << "3 - Listar objetos" << endl;
+    cout << "4 - Salvar objetos em base de dados" << endl;
+    cout << "5 - Carregar objetos de base de dados" << endl;
+
+    int option = getNumericInput();
+    switch (option) {
+        case 1:
+            cout << endl << "Adicionar objeto selecionado." << endl;
+            addObject();
+            break;
+        case 2:
+            cout << endl <<"Remover objeto selecionado." << endl;
+            // Code to remove object
+            break;
+        case 3:
+            cout << endl << "Listar objetos selecionado." << endl;
+            // Code to list objects
+            break;
+        case 4:
+            cout << endl << "Salvar objetos selecionado." << endl;
+            // Code to save objects
+            break;
+        case 5:
+            cout << endl << "Carregar objetos selecionado." << endl;
+            // Code to load objects
+            break;
+        default:
+            cout << endl << "Opção inválida." << endl;
+            break;
+    }
+}
+
+void Menu::addObject() {
+
+    cout << "Selecione o tipo de objeto a adicionar:" << endl;
+    cout << "1 - Ponto" << endl;
+    cout << "2 - Polígono" << endl;
+    cout << "3 - Circunferência" << endl;
+
+    int objectType = getNumericInput();
+    switch (objectType) {
+        case 1: {
+            cout << "Adicionar Ponto selecionado." << endl;
+            double x, y;
+            cout << "Digite a coordenada x: ";
+            cin >> x;
+            cout << "Digite a coordenada y: ";
+            cin >> y;
+            geometricObjects.push_back(new Point(x, y));
+            cout << "Ponto adicionado com sucesso." << endl;
+            break;
+        }
+        case 2: {
+            cout << "Adicionar Polígono selecionado." << endl;
+            int numVertices;
+            cout << "Digite o número de vértices: ";
+            cin >> numVertices;
+            std::vector<Point> vertices;
+            for (int i = 0; i < numVertices; ++i) {
+                double x, y;
+                cout << "Vértice " << (i + 1) << " - Digite a coordenada x: ";
+                cin >> x;
+                cout << "Vértice " << (i + 1) << " - Digite a coordenada y: ";
+                cin >> y;
+                vertices.emplace_back(x, y);
+            }
+            geometricObjects.push_back(new Polygon(vertices));
+            cout << "Polígono adicionado com sucesso." << endl;
+            break;
+        }
+        case 3: {
+            cout << "Adicionar Circunferência selecionado." << endl;
+            double centerX, centerY, radius;
+            cout << "Digite a coordenada x do centro: ";
+            cin >> centerX;
+            cout << "Digite a coordenada y do centro: ";
+            cin >> centerY;
+            cout << "Digite o raio: ";
+            cin >> radius;
+            geometricObjects.push_back(new Circumference(Point(centerX, centerY), radius));
+            cout << "Circunferência adicionada com sucesso." << endl;
+            break;
+        }
+        default:
+            cout << "Tipo de objeto inválido." << endl;
+            break;
+    }
+}

@@ -129,9 +129,15 @@ void Menu::manageObjects() {
     }
 }
 
-void Menu::addObject() {
+void Menu::addObject(geometricObject *obj) {
 
     static int objectCounter = 0 + getMaxId();
+
+    if (obj) {
+        geometricObjects.push_back(obj);
+        obj->setId(objectCounter++);
+        return;
+    }
 
     cout << "Selecione o tipo de objeto a adicionar:" << endl;
     cout << "1 - Ponto" << endl;
@@ -235,32 +241,549 @@ void Menu::listObjects() {
 
 void Menu::manageCalculator() {
 
-    cout << endl << "Selecione a operação desejada:" << endl;
+    cout << endl << "Selecione o tipo de operação:" << endl;
     cout << "1 - Operações com pontos" << endl;
-    cout << "2 - Operações com vetores" << endl;
-    cout << "3 - Operações com segmentos" << endl;
-    cout << "4 - Operações com polígonos e circunferências" << endl;
+    cout << "2 - Operações com vetores (retas)" << endl;
+    cout << "3 - Operações com segmentos (retas)" << endl;
+    cout << "4 - Operações com polígonos" << endl;
 
     int option = getNumericInput();
     switch (option) {
         case 1: {
-            // Perform point operations
+            // Point operations
+            cout << endl << "Operações com pontos:" << endl;
+            cout << "1 - Distância entre dois pontos" << endl;
+            cout << "2 - Ponto médio entre dois pontos" << endl;
+            cout << "3 - Translação de ponto por vetor" << endl;
+            cout << "4 - Vetor entre dois pontos" << endl;
+            
+            int subopt = getNumericInput();
+            if (subopt == 1) {
+                cout << "Digite o ID do primeiro ponto: ";
+                int id1 = getNumericInput();
+                cout << "Digite o ID do segundo ponto: ";
+                int id2 = getNumericInput();
+                
+                Point* p1 = nullptr;
+                Point* p2 = nullptr;
+                for (auto obj : geometricObjects) {
+                    if (obj->getId() == id1 && obj->type() == geometricObject::Type::Point) {
+                        p1 = dynamic_cast<Point*>(obj);
+                    }
+                    if (obj->getId() == id2 && obj->type() == geometricObject::Type::Point) {
+                        p2 = dynamic_cast<Point*>(obj);
+                    }
+                }
+                
+                if (p1 && p2) {
+                    double dist = Calculator::distance(*p1, *p2);
+                    cout << "Distância: " << dist << endl;
+                } else {
+                    cout << "Um ou ambos os pontos não encontrados." << endl;
+                }
+            } else if (subopt == 2) {
+                cout << "Digite o ID do primeiro ponto: ";
+                int id1 = getNumericInput();
+                cout << "Digite o ID do segundo ponto: ";
+                int id2 = getNumericInput();
+                
+                Point* p1 = nullptr;
+                Point* p2 = nullptr;
+                for (auto obj : geometricObjects) {
+                    if (obj->getId() == id1 && obj->type() == geometricObject::Type::Point) {
+                        p1 = dynamic_cast<Point*>(obj);
+                    }
+                    if (obj->getId() == id2 && obj->type() == geometricObject::Type::Point) {
+                        p2 = dynamic_cast<Point*>(obj);
+                    }
+                }
+                
+                if (p1 && p2) {
+                    Point mid = Calculator::midpoint(*p1, *p2);
+                    cout << "Ponto médio: (";
+                    mid.print();
+                    cout << ")" << endl;
+                    Point* newPoint = new Point(mid);
+                    askAddResult(newPoint);
+                } else {
+                    cout << "Um ou ambos os pontos não encontrados." << endl;
+                }
+            } else if (subopt == 3) {
+                cout << "Digite o ID do ponto: ";
+                int pid = getNumericInput();
+                cout << "Digite o ID do vetor (reta): ";
+                int vid = getNumericInput();
+                
+                Point* p = nullptr;
+                Line* v = nullptr;
+                for (auto obj : geometricObjects) {
+                    if (obj->getId() == pid && obj->type() == geometricObject::Type::Point) {
+                        p = dynamic_cast<Point*>(obj);
+                    }
+                    if (obj->getId() == vid && obj->type() == geometricObject::Type::Line) {
+                        v = dynamic_cast<Line*>(obj);
+                    }
+                }
+                
+                if (p && v) {
+                    Point result = Calculator::addPointVector(*p, *v);
+                    cout << "Resultado da translação: (";
+                    result.print();
+                    cout << ")" << endl;
+                    Point* newPoint = new Point(result);
+                    askAddResult(newPoint);
+                } else {
+                    cout << "Ponto ou vetor não encontrado." << endl;
+                }
+            } else if (subopt == 4) {
+                cout << "Digite o ID do primeiro ponto: ";
+                int id1 = getNumericInput();
+                cout << "Digite o ID do segundo ponto: ";
+                int id2 = getNumericInput();
+                
+                Point* p1 = nullptr;
+                Point* p2 = nullptr;
+                for (auto obj : geometricObjects) {
+                    if (obj->getId() == id1 && obj->type() == geometricObject::Type::Point) {
+                        p1 = dynamic_cast<Point*>(obj);
+                    }
+                    if (obj->getId() == id2 && obj->type() == geometricObject::Type::Point) {
+                        p2 = dynamic_cast<Point*>(obj);
+                    }
+                }
+                
+                if (p1 && p2) {
+                    Line vec = Calculator::subtractPoints(*p1, *p2);
+                    cout << "Vetor P1-P2: (";
+                    vec.getP2().print();
+                    cout << ")" << endl;
+                    Line* newVec = new Line(vec);
+                    askAddResult(newVec);
+                } else {
+                    cout << "Um ou ambos os pontos não encontrados." << endl;
+                }
+            } else {
+                cout << "Opção inválida." << endl;
+            }
             break;
         }
         case 2: {
-            // Perform vector operations
+            // Vector operations
+            cout << endl << "Operações com vetores (retas):" << endl;
+            cout << "1 - Adição de vetores" << endl;
+            cout << "2 - Subtração de vetores" << endl;
+            cout << "3 - Multiplicação por escalar" << endl;
+            cout << "4 - Divisão por escalar" << endl;
+            cout << "5 - Produto escalar (dot product)" << endl;
+            cout << "6 - Produto vetorial (cross product)" << endl;
+            cout << "7 - Magnitude (norma)" << endl;
+            cout << "8 - Normalizar vetor" << endl;
+            
+            int subopt = getNumericInput();
+            if (subopt == 1) {
+                cout << "Digite o ID do primeiro vetor (reta): ";
+                int id1 = getNumericInput();
+                cout << "Digite o ID do segundo vetor (reta): ";
+                int id2 = getNumericInput();
+                
+                Line* v1 = nullptr;
+                Line* v2 = nullptr;
+                for (auto obj : geometricObjects) {
+                    if (obj->getId() == id1 && obj->type() == geometricObject::Type::Line) {
+                        v1 = dynamic_cast<Line*>(obj);
+                    }
+                    if (obj->getId() == id2 && obj->type() == geometricObject::Type::Line) {
+                        v2 = dynamic_cast<Line*>(obj);
+                    }
+                }
+                
+                if (v1 && v2) {
+                    Line result = Calculator::addVectors(*v1, *v2);
+                    cout << "Resultado V1 + V2: (";
+                    result.getP2().print();
+                    cout << ")" << endl;
+                    Line* newVec = new Line(result);
+                    askAddResult(newVec);
+                } else {
+                    cout << "Um ou ambos os vetores não encontrados." << endl;
+                }
+            } else if (subopt == 2) {
+                cout << "Digite o ID do primeiro vetor (reta): ";
+                int id1 = getNumericInput();
+                cout << "Digite o ID do segundo vetor (reta): ";
+                int id2 = getNumericInput();
+                
+                Line* v1 = nullptr;
+                Line* v2 = nullptr;
+                for (auto obj : geometricObjects) {
+                    if (obj->getId() == id1 && obj->type() == geometricObject::Type::Line) {
+                        v1 = dynamic_cast<Line*>(obj);
+                    }
+                    if (obj->getId() == id2 && obj->type() == geometricObject::Type::Line) {
+                        v2 = dynamic_cast<Line*>(obj);
+                    }
+                }
+                
+                if (v1 && v2) {
+                    Line result = Calculator::subtractVectors(*v1, *v2);
+                    cout << "Resultado V1 - V2: (";
+                    result.getP2().print();
+                    cout << ")" << endl;
+                    Line* newVec = new Line(result);
+                    askAddResult(newVec);
+                } else {
+                    cout << "Um ou ambos os vetores não encontrados." << endl;
+                }
+            } else if (subopt == 3) {
+                cout << "Digite o ID do vetor (reta): ";
+                int vid = getNumericInput();
+                cout << "Digite o escalar: ";
+                double scalar = 0;
+                cin >> scalar;
+                cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                
+                Line* v = nullptr;
+                for (auto obj : geometricObjects) {
+                    if (obj->getId() == vid && obj->type() == geometricObject::Type::Line) {
+                        v = dynamic_cast<Line*>(obj);
+                    }
+                }
+                
+                if (v) {
+                    Line result = Calculator::scalarMultiply(*v, scalar);
+                    cout << "Resultado " << scalar << " * V: (";
+                    result.getP2().print();
+                    cout << ")" << endl;
+                    Line* newVec = new Line(result);
+                    askAddResult(newVec);
+                } else {
+                    cout << "Vetor não encontrado." << endl;
+                }
+            } else if (subopt == 4) {
+                cout << "Digite o ID do vetor (reta): ";
+                int vid = getNumericInput();
+                cout << "Digite o escalar (não zero): ";
+                double scalar = 0;
+                cin >> scalar;
+                cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                
+                if (scalar == 0) {
+                    cout << "Escalar não pode ser zero." << endl;
+                } else {
+                    Line* v = nullptr;
+                    for (auto obj : geometricObjects) {
+                        if (obj->getId() == vid && obj->type() == geometricObject::Type::Line) {
+                            v = dynamic_cast<Line*>(obj);
+                        }
+                    }
+                    
+                    if (v) {
+                        Line result = Calculator::scalarDivide(*v, scalar);
+                        cout << "Resultado V / " << scalar << ": (";
+                        result.getP2().print();
+                        cout << ")" << endl;
+                        Line* newVec = new Line(result);
+                        askAddResult(newVec);
+                    } else {
+                        cout << "Vetor não encontrado." << endl;
+                    }
+                }
+            } else if (subopt == 5) {
+                cout << "Digite o ID do primeiro vetor (reta): ";
+                int id1 = getNumericInput();
+                cout << "Digite o ID do segundo vetor (reta): ";
+                int id2 = getNumericInput();
+                
+                Line* v1 = nullptr;
+                Line* v2 = nullptr;
+                for (auto obj : geometricObjects) {
+                    if (obj->getId() == id1 && obj->type() == geometricObject::Type::Line) {
+                        v1 = dynamic_cast<Line*>(obj);
+                    }
+                    if (obj->getId() == id2 && obj->type() == geometricObject::Type::Line) {
+                        v2 = dynamic_cast<Line*>(obj);
+                    }
+                }
+                
+                if (v1 && v2) {
+                    double dot = Calculator::dotProduct(*v1, *v2);
+                    cout << "V1 · V2 = " << dot << endl;
+                } else {
+                    cout << "Um ou ambos os vetores não encontrados." << endl;
+                }
+            } else if (subopt == 6) {
+                cout << "Digite o ID do primeiro vetor (reta): ";
+                int id1 = getNumericInput();
+                cout << "Digite o ID do segundo vetor (reta): ";
+                int id2 = getNumericInput();
+                
+                Line* v1 = nullptr;
+                Line* v2 = nullptr;
+                for (auto obj : geometricObjects) {
+                    if (obj->getId() == id1 && obj->type() == geometricObject::Type::Line) {
+                        v1 = dynamic_cast<Line*>(obj);
+                    }
+                    if (obj->getId() == id2 && obj->type() == geometricObject::Type::Line) {
+                        v2 = dynamic_cast<Line*>(obj);
+                    }
+                }
+                
+                if (v1 && v2) {
+                    double cross = Calculator::crossProduct(*v1, *v2);
+                    cout << "V1 × V2 = " << cross << " (signed area)" << endl;
+                } else {
+                    cout << "Um ou ambos os vetores não encontrados." << endl;
+                }
+            } else if (subopt == 7) {
+                cout << "Digite o ID do vetor (reta): ";
+                int vid = getNumericInput();
+                
+                Line* v = nullptr;
+                for (auto obj : geometricObjects) {
+                    if (obj->getId() == vid && obj->type() == geometricObject::Type::Line) {
+                        v = dynamic_cast<Line*>(obj);
+                    }
+                }
+                
+                if (v) {
+                    double mag = Calculator::magnitude(*v);
+                    cout << "|V| = " << mag << endl;
+                } else {
+                    cout << "Vetor não encontrado." << endl;
+                }
+            } else if (subopt == 8) {
+                cout << "Digite o ID do vetor (reta): ";
+                int vid = getNumericInput();
+                
+                Line* v = nullptr;
+                for (auto obj : geometricObjects) {
+                    if (obj->getId() == vid && obj->type() == geometricObject::Type::Line) {
+                        v = dynamic_cast<Line*>(obj);
+                    }
+                }
+                
+                if (v) {
+                    try {
+                        Line normalized = Calculator::normalize(*v);
+                        cout << "Vetor normalizado: (";
+                        normalized.getP2().print();
+                        cout << ")" << endl;
+                        Line* newVec = new Line(normalized);
+                        askAddResult(newVec);
+                    } catch (const std::exception& e) {
+                        cout << "Erro: " << e.what() << endl;
+                    }
+                } else {
+                    cout << "Vetor não encontrado." << endl;
+                }
+            } else {
+                cout << "Opção inválida." << endl;
+            }
             break;
         }
         case 3: {
-            // Perform segment operations
+            // Segment operations
+            cout << endl << "Operações com segmentos (retas):" << endl;
+            cout << "1 - Comprimento do segmento" << endl;
+            cout << "2 - Ponto médio do segmento" << endl;
+            cout << "3 - Verificar se dois segmentos são paralelos" << endl;
+            cout << "4 - Verificar se dois segmentos são perpendiculares" << endl;
+            
+            int subopt = getNumericInput();
+            if (subopt == 1) {
+                cout << "Digite o ID do segmento (reta): ";
+                int id = getNumericInput();
+                
+                Line* seg = nullptr;
+                for (auto obj : geometricObjects) {
+                    if (obj->getId() == id && obj->type() == geometricObject::Type::Line) {
+                        seg = dynamic_cast<Line*>(obj);
+                    }
+                }
+                
+                if (seg) {
+                    double length = Calculator::segmentLength(*seg);
+                    cout << "Comprimento do segmento: " << length << endl;
+                } else {
+                    cout << "Segmento não encontrado." << endl;
+                }
+            } else if (subopt == 2) {
+                cout << "Digite o ID do segmento (reta): ";
+                int id = getNumericInput();
+                
+                Line* seg = nullptr;
+                for (auto obj : geometricObjects) {
+                    if (obj->getId() == id && obj->type() == geometricObject::Type::Line) {
+                        seg = dynamic_cast<Line*>(obj);
+                    }
+                }
+                
+                if (seg) {
+                    Point mid = Calculator::segmentMidpoint(*seg);
+                    cout << "Ponto médio do segmento: (";
+                    mid.print();
+                    cout << ")" << endl;
+                    Point* newPoint = new Point(mid);
+                    askAddResult(newPoint);
+                } else {
+                    cout << "Segmento não encontrado." << endl;
+                }
+            } else if (subopt == 3) {
+                cout << "Digite o ID do primeiro segmento (reta): ";
+                int id1 = getNumericInput();
+                cout << "Digite o ID do segundo segmento (reta): ";
+                int id2 = getNumericInput();
+                
+                Line* seg1 = nullptr;
+                Line* seg2 = nullptr;
+                for (auto obj : geometricObjects) {
+                    if (obj->getId() == id1 && obj->type() == geometricObject::Type::Line) {
+                        seg1 = dynamic_cast<Line*>(obj);
+                    }
+                    if (obj->getId() == id2 && obj->type() == geometricObject::Type::Line) {
+                        seg2 = dynamic_cast<Line*>(obj);
+                    }
+                }
+                
+                if (seg1 && seg2) {
+                    bool parallel = Calculator::areParallel(*seg1, *seg2);
+                    cout << "São paralelos? " << (parallel ? "SIM" : "NÃO") << endl;
+                } else {
+                    cout << "Um ou ambos os segmentos não encontrados." << endl;
+                }
+            } else if (subopt == 4) {
+                cout << "Digite o ID do primeiro segmento (reta): ";
+                int id1 = getNumericInput();
+                cout << "Digite o ID do segundo segmento (reta): ";
+                int id2 = getNumericInput();
+                
+                Line* seg1 = nullptr;
+                Line* seg2 = nullptr;
+                for (auto obj : geometricObjects) {
+                    if (obj->getId() == id1 && obj->type() == geometricObject::Type::Line) {
+                        seg1 = dynamic_cast<Line*>(obj);
+                    }
+                    if (obj->getId() == id2 && obj->type() == geometricObject::Type::Line) {
+                        seg2 = dynamic_cast<Line*>(obj);
+                    }
+                }
+                
+                if (seg1 && seg2) {
+                    bool perpendicular = Calculator::arePerpendicular(*seg1, *seg2);
+                    cout << "São perpendiculares? " << (perpendicular ? "SIM" : "NÃO") << endl;
+                } else {
+                    cout << "Um ou ambos os segmentos não encontrados." << endl;
+                }
+            } else {
+                cout << "Opção inválida." << endl;
+            }
             break;
         }
         case 4: {
-            // Perform polygon + circumference operations
+            // Polygon operations
+            cout << endl << "Operações com polígonos:" << endl;
+            cout << "1 - Perímetro do polígono" << endl;
+            cout << "2 - Área do polígono" << endl;
+            cout << "3 - Centróide do polígono" << endl;
+            cout << "4 - Verificar se ponto está dentro do polígono" << endl;
+            
+            int subopt = getNumericInput();
+            if (subopt == 1) {
+                cout << "Digite o ID do polígono: ";
+                int id = getNumericInput();
+                
+                Polygon* poly = nullptr;
+                for (auto obj : geometricObjects) {
+                    if (obj->getId() == id && obj->type() == geometricObject::Type::Polygon) {
+                        poly = dynamic_cast<Polygon*>(obj);
+                    }
+                }
+                
+                if (poly) {
+                    double perimeter = Calculator::polygonPerimeter(*poly);
+                    cout << "Perímetro do polígono: " << perimeter << endl;
+                } else {
+                    cout << "Polígono não encontrado." << endl;
+                }
+            } else if (subopt == 2) {
+                cout << "Digite o ID do polígono: ";
+                int id = getNumericInput();
+                
+                Polygon* poly = nullptr;
+                for (auto obj : geometricObjects) {
+                    if (obj->getId() == id && obj->type() == geometricObject::Type::Polygon) {
+                        poly = dynamic_cast<Polygon*>(obj);
+                    }
+                }
+                
+                if (poly) {
+                    double area = Calculator::polygonArea(*poly);
+                    cout << "Área do polígono: " << area << endl;
+                } else {
+                    cout << "Polígono não encontrado." << endl;
+                }
+            } else if (subopt == 3) {
+                cout << "Digite o ID do polígono: ";
+                int id = getNumericInput();
+                
+                Polygon* poly = nullptr;
+                for (auto obj : geometricObjects) {
+                    if (obj->getId() == id && obj->type() == geometricObject::Type::Polygon) {
+                        poly = dynamic_cast<Polygon*>(obj);
+                    }
+                }
+                
+                if (poly) {
+                    Point centroid = Calculator::polygonCentroid(*poly);
+                    cout << "Centróide do polígono: (";
+                    centroid.print();
+                    cout << ")" << endl;
+                    Point* newPoint = new Point(centroid);
+                    askAddResult(newPoint);
+                } else {
+                    cout << "Polígono não encontrado." << endl;
+                }
+            } else if (subopt == 4) {
+                cout << "Digite o ID do ponto: ";
+                int pid = getNumericInput();
+                cout << "Digite o ID do polígono: ";
+                int polyid = getNumericInput();
+                
+                Point* p = nullptr;
+                Polygon* poly = nullptr;
+                for (auto obj : geometricObjects) {
+                    if (obj->getId() == pid && obj->type() == geometricObject::Type::Point) {
+                        p = dynamic_cast<Point*>(obj);
+                    }
+                    if (obj->getId() == polyid && obj->type() == geometricObject::Type::Polygon) {
+                        poly = dynamic_cast<Polygon*>(obj);
+                    }
+                }
+                
+                if (p && poly) {
+                    bool inside = Calculator::isPointInPolygon(*p, *poly);
+                    cout << "O ponto está dentro do polígono? " << (inside ? "SIM" : "NÃO") << endl;
+                } else {
+                    cout << "Ponto ou polígono não encontrado." << endl;
+                }
+            } else {
+                cout << "Opção inválida." << endl;
+            }
             break;
         }
         default:
             cout << "Opção inválida." << endl;
             break;
+    }
+}
+
+void Menu::askAddResult(geometricObject* result) {
+    cout << "Deseja adicionar o resultado como um novo objeto? (1 - Sim, 0 - Não): ";
+    int choice = getNumericInput();
+    if (choice == 1) {
+        addObject(result);
+        cout << "Resultado adicionado com sucesso." << endl;
+    } else {
+        cout << "Resultado não adicionado." << endl;
     }
 }

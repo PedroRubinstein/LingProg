@@ -1,6 +1,7 @@
 #include "point.h"
 #include "line.h"
 #include "polygon.h"
+#include <iostream>
 #include <cmath>
 #include <vector>
 
@@ -114,7 +115,7 @@ public:
 
     // Check if two segments are parallel
     static bool areParallel(const Line& seg1, const Line& seg2) {
-        double cross = crossProduct2D(seg1, seg2);
+        double cross = crossProduct(seg1, seg2);
         // Parallel if cross product is ~0
         return std::abs(cross) < 1e-9;
     }

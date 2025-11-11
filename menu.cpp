@@ -68,6 +68,7 @@ void Menu::processOption(int option) {
         }
         case 2:
             cout << "\n[2] Calculadora geométrica simples selecionada." << endl;
+            manageCalculator();
             break;
         case 3:
             cout << "\n[3] Cálculo do polígono convexo selecionado." << endl;
@@ -229,5 +230,37 @@ void Menu::listObjects() {
         cout << "ID: " << obj->getId() << " - ";
         obj->print();
         cout << endl;
+    }
+}
+
+void Menu::manageCalculator() {
+
+    cout << endl << "Selecione a operação desejada:" << endl;
+    cout << "1 - Operações com pontos" << endl;
+    cout << "2 - Operações com vetores" << endl;
+    cout << "3 - Operações com segmentos" << endl;
+    cout << "4 - Operações com polígonos e circunferências" << endl;
+
+    int option = getNumericInput();
+    switch (option) {
+        case 1: {
+            // Perform point operations
+            break;
+        }
+        case 2: {
+            // Perform vector operations
+            break;
+        }
+        case 3: {
+            // Perform segment operations
+            break;
+        }
+        case 4: {
+            // Perform polygon + circumference operations
+            break;
+        }
+        default:
+            cout << "Opção inválida." << endl;
+            break;
     }
 }

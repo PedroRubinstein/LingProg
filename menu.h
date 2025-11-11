@@ -3,6 +3,7 @@
 
 #include "geometricobject.h"
 #include "plotter.h"
+#include "calculator.h"
 #include <vector>
 
 class Menu {
@@ -19,6 +20,7 @@ class Menu {
         void listObjects();
         void saveObjects(); //ver o template, botei qq coisa
         void loadObjects(); //ver o template, botei qq coisa
+        void manageCalculator();
         int getMaxId() {return 0;}; // Returns the maximum ID among existing objects in the database, 
         // or 0 if none exist. TO BE DONE (MIGHT NOT BELONG TO THIS CLASS)
         std::vector<geometricObject *> geometricObjects;

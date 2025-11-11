@@ -1,14 +1,17 @@
 #include <iostream>
 #include <limits>
+#include <vector>
+#include <string>
 #include "menu.h"
 #include "polygon.h"
 #include "line.h"
 #include "circumference.h"
-#include <vector>
+
 
 using std::cin;
 using std::cout;
 using std::endl;
+using std::string;
 
 Menu::~Menu() {
     for (auto obj : geometricObjects) {
@@ -78,7 +81,7 @@ void Menu::processOption(int option) {
             break;
         case 5:
             cout << "\n[5] Visualização selecionada." << endl;
-            Plotter::plot(geometricObjects);
+            managePlotter();
             break;
         default:
             cout << "\nOpção inválida. Escolha um número entre 0 e 5." << endl;
@@ -374,8 +377,8 @@ void Menu::manageCalculator() {
             cout << "2 - Subtração de vetores" << endl;
             cout << "3 - Multiplicação por escalar" << endl;
             cout << "4 - Divisão por escalar" << endl;
-            cout << "5 - Produto escalar (dot product)" << endl;
-            cout << "6 - Produto vetorial (cross product)" << endl;
+            cout << "5 - Produto escalar" << endl;
+            cout << "6 - Produto vetorial" << endl;
             cout << "7 - Magnitude (norma)" << endl;
             cout << "8 - Normalizar vetor" << endl;
             
@@ -785,5 +788,27 @@ void Menu::askAddResult(geometricObject* result) {
         cout << "Resultado adicionado com sucesso." << endl;
     } else {
         cout << "Resultado não adicionado." << endl;
+    }
+}
+
+void Menu::managePlotter() {
+    cout << "1 - Gerar visualização dos objetos geométricos armazenados" << endl;
+    cout << "2 - Salvar último plot gerado em arquivo desejado" << endl;
+
+    int option = getNumericInput();
+    switch (option) {
+        case 1:
+            plotter.plot(geometricObjects);
+            break;
+        case 2: {
+            cout << "Digite o nome do arquivo para salvar o plot: ";
+            string filename;
+            cin >> filename;
+            plotter.saveFigure(filename);
+            break;
+        }
+        default:
+            cout << "Opção inválida." << endl;
+            break;
     }
 }

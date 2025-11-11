@@ -1,47 +1,12 @@
 import os
 import sys
 import matplotlib
-
-
-def _select_backend():
-    """Try to switch from Agg to an interactive backend when possible.
-    Honors MPLBACKEND if set. Tries TkAgg, then Qt5Agg, then GTK3Agg when a display is present.
-    """
-    # Respect explicit user choice
-    if os.environ.get("MPLBACKEND"):
-        return
-
-    current = str(matplotlib.get_backend()).lower()
-    has_display = bool(os.environ.get("DISPLAY")) or bool(os.environ.get("WAYLAND_DISPLAY"))
-
-    if "agg" in current and has_display:
-        for candidate in ("TkAgg", "Qt5Agg", "GTK3Agg"):
-            try:
-                matplotlib.use(candidate, force=True)
-                break
-            except Exception:
-                print(f"[plotter.py] Could not switch backend ({candidate}); trying next", file=sys.stderr)
-                continue
-
-
+matplotlib.use("Qt5Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 
-_select_backend()
-
-def _finalize_show(fig):
-    try:
-        backend = str(plt.get_backend()).lower()
-        has_display = bool(os.environ.get("DISPLAY"))
-        print(f"[plotter.py] Backend: {backend}, DISPLAY: {has_display}", file=sys.stderr)
-        # Avoid calling plt.show() on non-interactive backends like Agg
-        if ("agg" in backend) or (not has_display):
-            raise RuntimeError(f"Non-interactive backend: {backend} or no DISPLAY")
-        plt.show()
-    except Exception as e:
-        out = os.path.abspath("plot.png")
-        fig.savefig(out, dpi=150, bbox_inches="tight")
-        print(f"[plotter.py] Could not show figure ({e}); saved to {out}", file=sys.stderr)
+# Global variable to store the last figure
+_last_figure = None
 
 def plot_objects(shapes):
     """
@@ -81,12 +46,46 @@ def plot_objects(shapes):
             if len(x) == 2 and len(y) == 2:
                 ax.plot(x, y, '-k', linewidth=1.5)
         else:
-            # Unknown: skip or log
+            #unknown: skip
             pass
 
     ax.set_xlabel('X-axis')
     ax.set_ylabel('Y-axis')
-    ax.set_title('Geometric Objects')
     ax.grid(True)
     ax.set_aspect('equal', adjustable='box')
-    _finalize_show(fig)
+    
+    # Store the figure globally for later saving
+    global _last_figure
+    _last_figure = fig
+    
+    try:
+        backend = str(plt.get_backend()).lower()
+        has_display = bool(os.environ.get("DISPLAY"))
+        # Avoid calling plt.show() on non-interactive backends like qtAgg
+        if ("qtagg" in backend) or (not has_display):
+            print("here", backend, has_display)
+            raise RuntimeError(f"Non-interactive backend: {backend} or no DISPLAY: has? {has_display}")
+        plt.show()
+        plt.close()
+    except Exception as e:
+        out = os.path.abspath("plot.png")
+        fig.savefig(out, dpi=150, bbox_inches="tight")
+        print(f"[plotter.py] Could not show figure ({e}); saved to {out}", file=sys.stderr)
+
+def save_figure(filename):
+    """
+    Save the last generated figure to the specified filename.
+    Returns True if successful, False otherwise.
+    """
+    global _last_figure
+    if _last_figure is None:
+        print("[plotter.py] Error: No figure to save", file=sys.stderr)
+        return False
+    
+    try:
+        _last_figure.savefig(filename, dpi=150, bbox_inches="tight")
+        print(f"[plotter.py] Figure saved to {filename}", file=sys.stderr)
+        return True
+    except Exception as e:
+        print(f"[plotter.py] Error saving figure to {filename}: {e}", file=sys.stderr)
+        return False

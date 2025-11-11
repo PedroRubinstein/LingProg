@@ -7,7 +7,11 @@
 
 class Plotter {
 public:
-    static void plot(const std::vector<geometricObject*> &objects);
+    Plotter();
+    ~Plotter();
+
+    void plot(const std::vector<geometricObject*> &objects);
+    bool saveFigure(const std::string &filename);
 };
 
 #endif // PLOTTER_H

@@ -101,19 +101,19 @@ void Menu::manageObjects() {
             break;
         case 2:
             cout << endl <<"Remover objeto selecionado." << endl;
-            // Code to remove object
+            removeObject();
             break;
         case 3:
             cout << endl << "Listar objetos selecionado." << endl;
-            // Code to list objects
+            listObjects();
             break;
         case 4:
             cout << endl << "Salvar objetos selecionado." << endl;
-            // Code to save objects
+            //saveObjects();
             break;
         case 5:
             cout << endl << "Carregar objetos selecionado." << endl;
-            // Code to load objects
+            //loadObjects();
             break;
         default:
             cout << endl << "Opção inválida." << endl;
@@ -122,6 +122,8 @@ void Menu::manageObjects() {
 }
 
 void Menu::addObject() {
+
+    static int objectCounter = 0 + getMaxId();
 
     cout << "Selecione o tipo de objeto a adicionar:" << endl;
     cout << "1 - Ponto" << endl;
@@ -138,6 +140,7 @@ void Menu::addObject() {
             cout << "Digite a coordenada y: ";
             cin >> y;
             geometricObjects.push_back(new Point(x, y));
+            geometricObjects.back()->setId(objectCounter++);
             cout << "Ponto adicionado com sucesso." << endl;
             break;
         }
@@ -156,6 +159,7 @@ void Menu::addObject() {
                 vertices.emplace_back(x, y);
             }
             geometricObjects.push_back(new Polygon(vertices));
+            geometricObjects.back()->setId(objectCounter++);
             cout << "Polígono adicionado com sucesso." << endl;
             break;
         }
@@ -169,11 +173,41 @@ void Menu::addObject() {
             cout << "Digite o raio: ";
             cin >> radius;
             geometricObjects.push_back(new Circumference(Point(centerX, centerY), radius));
+            geometricObjects.back()->setId(objectCounter++);
             cout << "Circunferência adicionada com sucesso." << endl;
             break;
         }
         default:
             cout << "Tipo de objeto inválido." << endl;
             break;
+    }
+}
+
+void Menu::removeObject() {
+    cout << "Digite o ID do objeto a ser removido: ";
+    int idToRemove = getNumericInput();
+    for (auto it = geometricObjects.begin(); it != geometricObjects.end(); ++it)
+    {
+        if ((*it)->getId() == idToRemove) {
+            delete *it; // Free memory
+            geometricObjects.erase(it);
+            cout << "Objeto com ID " << idToRemove << " removido com sucesso." << endl;
+            return;
+        }
+    }
+    cout << "Objeto com ID " << idToRemove << " não encontrado." << endl;
+}
+
+void Menu::listObjects() {
+    if (geometricObjects.empty()) {
+        cout << "Nenhum objeto geométrico armazenado." << endl;
+        return;
+    }
+
+    cout << "Objetos geométricos armazenados:" << endl;
+    for (const auto& obj : geometricObjects) {
+        cout << "ID: " << obj->getId() << " - ";
+        obj->print();
+        cout << endl;
     }
 }

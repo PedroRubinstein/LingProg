@@ -5,7 +5,7 @@
 
 class geometricObject {
 public:
-    // Tipo do objeto (útil para identificação em tempo de execução)
+    // Makes it easier to identify object types
     enum class Type {
         Unknown,
         Point,
@@ -16,10 +16,15 @@ public:
     geometricObject() = default;
     virtual ~geometricObject() = default;
 
+    void setId(int newId) { id = newId; }
+    int getId() const { return id; }
+
     virtual void print() const = 0;
 
-    // Retorna o tipo concreto do objeto
+    // Returns the type of the geometric object
     virtual Type type() const = 0;
+private:
+    int id = -1; // Unique identifier for the object
 };
 
 #endif

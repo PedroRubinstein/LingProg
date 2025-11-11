@@ -65,12 +65,21 @@ def plot_objects(shapes):
                 y.append(y[0])
             ax.plot(x, y, '-o', color='tab:orange')
         elif t == 'circumference':
-            cx, cy = s['center']
-            r = s['radius']
-            circ = Circle((cx, cy), r, fill=False, color='tab:green')
-            ax.add_patch(circ)
-            # Also plot center
-            ax.plot([cx], [cy], 'x', color='tab:green')
+            try:
+                center = s['center']
+                r = s['radius']
+                cx, cy = center
+                circ = Circle((cx, cy), r, fill=False, color='tab:green')
+                ax.add_patch(circ)
+                # Also plot center
+                ax.plot([cx], [cy], 'x', color='tab:green')
+            except Exception as e:
+                print(f"[plotter.py] ERROR in circumference processing: {e}", file=sys.stderr)
+        elif t == 'line':
+            x = list(s.get('x', []))
+            y = list(s.get('y', []))
+            if len(x) == 2 and len(y) == 2:
+                ax.plot(x, y, '-k', linewidth=1.5)
         else:
             # Unknown: skip or log
             pass

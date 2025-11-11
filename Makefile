@@ -4,8 +4,8 @@ CXXFLAGS = -Wall -Wextra $(shell python3-config --cflags)
 LDFLAGS = $(shell python3-config --embed --ldflags 2>/dev/null || python3-config --ldflags)
 
 # Source and object files
-SRCS = main.cpp menu.cpp circumference.cpp point.cpp polygon.cpp plotter.cpp
-OBJS = main.o menu.o circumference.o point.o polygon.o plotter.o
+SRCS = main.cpp menu.cpp circumference.cpp point.cpp polygon.cpp line.cpp plotter.cpp
+OBJS = main.o menu.o circumference.o point.o polygon.o line.o plotter.o
 
 # Output executable
 TARGET = main

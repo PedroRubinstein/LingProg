@@ -9,6 +9,7 @@ public:
     enum class Type {
         Unknown,
         Point,
+        Line,
         Polygon,
         Circumference
     };

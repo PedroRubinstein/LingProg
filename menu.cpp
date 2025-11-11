@@ -2,6 +2,7 @@
 #include <limits>
 #include "menu.h"
 #include "polygon.h"
+#include "line.h"
 #include "circumference.h"
 #include <vector>
 
@@ -133,8 +134,9 @@ void Menu::addObject() {
 
     cout << "Selecione o tipo de objeto a adicionar:" << endl;
     cout << "1 - Ponto" << endl;
-    cout << "2 - Polígono" << endl;
-    cout << "3 - Circunferência" << endl;
+    cout << "2 - Reta" << endl;
+    cout << "3 - Polígono" << endl;
+    cout << "4 - Circunferência" << endl;
 
     int objectType = getNumericInput();
     switch (objectType) {
@@ -151,6 +153,18 @@ void Menu::addObject() {
             break;
         }
         case 2: {
+            cout << "Adicionar Reta selecionado." << endl;
+            double x1, y1, x2, y2;
+            cout << "Digite a coordenada x do primeiro ponto: "; cin >> x1;
+            cout << "Digite a coordenada y do primeiro ponto: "; cin >> y1;
+            cout << "Digite a coordenada x do segundo ponto: "; cin >> x2;
+            cout << "Digite a coordenada y do segundo ponto: "; cin >> y2;
+            geometricObjects.push_back(new Line(Point(x1, y1), Point(x2, y2)));
+            geometricObjects.back()->setId(objectCounter++);
+            cout << "Reta adicionada com sucesso." << endl;
+            break;
+        }
+        case 3: {
             cout << "Adicionar Polígono selecionado." << endl;
             int numVertices;
             cout << "Digite o número de vértices: ";
@@ -169,7 +183,7 @@ void Menu::addObject() {
             cout << "Polígono adicionado com sucesso." << endl;
             break;
         }
-        case 3: {
+        case 4: {
             cout << "Adicionar Circunferência selecionado." << endl;
             double centerX, centerY, radius;
             cout << "Digite a coordenada x do centro: ";

@@ -16,8 +16,8 @@ public:
     const std::vector<Point>& getVertices() const;
 
     // Overrides
-    void print() const override;
-    geometricObject::Type type() const override;
+    void print() const;
+    geometricObject::Type type() const;
 
 private:
     std::vector<Point> m_vertices;

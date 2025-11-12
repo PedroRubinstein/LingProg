@@ -6,6 +6,7 @@
 #include "polygon.h"
 #include "line.h"
 #include "circumference.h"
+#include "vector2d.h"
 
 
 using std::cin;
@@ -246,7 +247,7 @@ void Menu::manageCalculator() {
 
     cout << endl << "Selecione o tipo de operação:" << endl;
     cout << "1 - Operações com pontos" << endl;
-    cout << "2 - Operações com vetores (retas)" << endl;
+    cout << "2 - Operações com vetores" << endl;
     cout << "3 - Operações com segmentos (retas)" << endl;
     cout << "4 - Operações com polígonos" << endl;
 
@@ -314,17 +315,17 @@ void Menu::manageCalculator() {
             } else if (subopt == 3) {
                 cout << "Digite o ID do ponto: ";
                 int pid = getNumericInput();
-                cout << "Digite o ID do vetor (reta): ";
+                cout << "Digite o ID do vetor: ";
                 int vid = getNumericInput();
                 
                 Point* p = nullptr;
-                Line* v = nullptr;
+                Vector2D* v = nullptr;
                 for (auto obj : geometricObjects) {
                     if (obj->getId() == pid && obj->type() == geometricObject::Type::Point) {
                         p = dynamic_cast<Point*>(obj);
                     }
-                    if (obj->getId() == vid && obj->type() == geometricObject::Type::Line) {
-                        v = dynamic_cast<Line*>(obj);
+                    if (obj->getId() == vid && obj->type() == geometricObject::Type::Vector2D) {
+                        v = dynamic_cast<Vector2D*>(obj);
                     }
                 }
                 
@@ -356,11 +357,11 @@ void Menu::manageCalculator() {
                 }
                 
                 if (p1 && p2) {
-                    Line vec = Calculator::subtractPoints(*p1, *p2);
+                    Vector2D vec = Calculator::subtractPoints(*p1, *p2);
                     cout << "Vetor P1-P2: (";
-                    vec.getP2().print();
+                    cout << vec.getX() << ", " << vec.getY();
                     cout << ")" << endl;
-                    Line* newVec = new Line(vec);
+                    Vector2D* newVec = new Vector2D(vec);
                     askAddResult(newVec);
                 } else {
                     cout << "Um ou ambos os pontos não encontrados." << endl;
@@ -372,7 +373,7 @@ void Menu::manageCalculator() {
         }
         case 2: {
             // Vector operations
-            cout << endl << "Operações com vetores (retas):" << endl;
+            cout << endl << "Operações com vetores:" << endl;
             cout << "1 - Adição de vetores" << endl;
             cout << "2 - Subtração de vetores" << endl;
             cout << "3 - Multiplicação por escalar" << endl;
@@ -384,86 +385,80 @@ void Menu::manageCalculator() {
             
             int subopt = getNumericInput();
             if (subopt == 1) {
-                cout << "Digite o ID do primeiro vetor (reta): ";
+                cout << "Digite o ID do primeiro vetor: ";
                 int id1 = getNumericInput();
-                cout << "Digite o ID do segundo vetor (reta): ";
+                cout << "Digite o ID do segundo vetor: ";
                 int id2 = getNumericInput();
                 
-                Line* v1 = nullptr;
-                Line* v2 = nullptr;
+                Vector2D* v1 = nullptr;
+                Vector2D* v2 = nullptr;
                 for (auto obj : geometricObjects) {
-                    if (obj->getId() == id1 && obj->type() == geometricObject::Type::Line) {
-                        v1 = dynamic_cast<Line*>(obj);
+                    if (obj->getId() == id1 && obj->type() == geometricObject::Type::Vector2D) {
+                        v1 = dynamic_cast<Vector2D*>(obj);
                     }
-                    if (obj->getId() == id2 && obj->type() == geometricObject::Type::Line) {
-                        v2 = dynamic_cast<Line*>(obj);
+                    if (obj->getId() == id2 && obj->type() == geometricObject::Type::Vector2D) {
+                        v2 = dynamic_cast<Vector2D*>(obj);
                     }
                 }
                 
                 if (v1 && v2) {
-                    Line result = Calculator::addVectors(*v1, *v2);
-                    cout << "Resultado V1 + V2: (";
-                    result.getP2().print();
-                    cout << ")" << endl;
-                    Line* newVec = new Line(result);
+                    Vector2D result = Calculator::addVectors(*v1, *v2);
+                    cout << "Resultado V1 + V2: (" << result.getX() << ", " << result.getY() << ")" << endl;
+                    Vector2D* newVec = new Vector2D(result);
                     askAddResult(newVec);
                 } else {
                     cout << "Um ou ambos os vetores não encontrados." << endl;
                 }
             } else if (subopt == 2) {
-                cout << "Digite o ID do primeiro vetor (reta): ";
+                cout << "Digite o ID do primeiro vetor: ";
                 int id1 = getNumericInput();
-                cout << "Digite o ID do segundo vetor (reta): ";
+                cout << "Digite o ID do segundo vetor: ";
                 int id2 = getNumericInput();
                 
-                Line* v1 = nullptr;
-                Line* v2 = nullptr;
+                Vector2D* v1 = nullptr;
+                Vector2D* v2 = nullptr;
                 for (auto obj : geometricObjects) {
-                    if (obj->getId() == id1 && obj->type() == geometricObject::Type::Line) {
-                        v1 = dynamic_cast<Line*>(obj);
+                    if (obj->getId() == id1 && obj->type() == geometricObject::Type::Vector2D) {
+                        v1 = dynamic_cast<Vector2D*>(obj);
                     }
-                    if (obj->getId() == id2 && obj->type() == geometricObject::Type::Line) {
-                        v2 = dynamic_cast<Line*>(obj);
+                    if (obj->getId() == id2 && obj->type() == geometricObject::Type::Vector2D) {
+                        v2 = dynamic_cast<Vector2D*>(obj);
                     }
                 }
                 
                 if (v1 && v2) {
-                    Line result = Calculator::subtractVectors(*v1, *v2);
-                    cout << "Resultado V1 - V2: (";
-                    result.getP2().print();
-                    cout << ")" << endl;
-                    Line* newVec = new Line(result);
+                    Vector2D result = Calculator::subtractVectors(*v1, *v2);
+                    cout << "Resultado V1 - V2: (" << result.getX() << ", " << result.getY() << ")" << endl;
+                    Vector2D* newVec = new Vector2D(result);
                     askAddResult(newVec);
                 } else {
                     cout << "Um ou ambos os vetores não encontrados." << endl;
                 }
             } else if (subopt == 3) {
-                cout << "Digite o ID do vetor (reta): ";
+                cout << "Digite o ID do vetor: ";
                 int vid = getNumericInput();
                 cout << "Digite o escalar: ";
                 double scalar = 0;
                 cin >> scalar;
                 cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 
-                Line* v = nullptr;
+                Vector2D* v = nullptr;
                 for (auto obj : geometricObjects) {
-                    if (obj->getId() == vid && obj->type() == geometricObject::Type::Line) {
-                        v = dynamic_cast<Line*>(obj);
+                    if (obj->getId() == vid && obj->type() == geometricObject::Type::Vector2D) {
+                        v = dynamic_cast<Vector2D*>(obj);
                     }
                 }
                 
                 if (v) {
-                    Line result = Calculator::scalarMultiply(*v, scalar);
-                    cout << "Resultado " << scalar << " * V: (";
-                    result.getP2().print();
-                    cout << ")" << endl;
-                    Line* newVec = new Line(result);
+                    Vector2D result = Calculator::scalarMultiply(*v, scalar);
+                    cout << "Resultado " << scalar << " * V: (" << result.getX() << ", " << result.getY() << ")" << endl;
+                    Vector2D* newVec = new Vector2D(result);
                     askAddResult(newVec);
                 } else {
                     cout << "Vetor não encontrado." << endl;
                 }
             } else if (subopt == 4) {
-                cout << "Digite o ID do vetor (reta): ";
+                cout << "Digite o ID do vetor: ";
                 int vid = getNumericInput();
                 cout << "Digite o escalar (não zero): ";
                 double scalar = 0;
@@ -473,38 +468,36 @@ void Menu::manageCalculator() {
                 if (scalar == 0) {
                     cout << "Escalar não pode ser zero." << endl;
                 } else {
-                    Line* v = nullptr;
+                    Vector2D* v = nullptr;
                     for (auto obj : geometricObjects) {
-                        if (obj->getId() == vid && obj->type() == geometricObject::Type::Line) {
-                            v = dynamic_cast<Line*>(obj);
+                        if (obj->getId() == vid && obj->type() == geometricObject::Type::Vector2D) {
+                            v = dynamic_cast<Vector2D*>(obj);
                         }
                     }
                     
                     if (v) {
-                        Line result = Calculator::scalarDivide(*v, scalar);
-                        cout << "Resultado V / " << scalar << ": (";
-                        result.getP2().print();
-                        cout << ")" << endl;
-                        Line* newVec = new Line(result);
+                        Vector2D result = Calculator::scalarDivide(*v, scalar);
+                        cout << "Resultado V / " << scalar << ": (" << result.getX() << ", " << result.getY() << ")" << endl;
+                        Vector2D* newVec = new Vector2D(result);
                         askAddResult(newVec);
                     } else {
                         cout << "Vetor não encontrado." << endl;
                     }
                 }
             } else if (subopt == 5) {
-                cout << "Digite o ID do primeiro vetor (reta): ";
+                cout << "Digite o ID do primeiro vetor: ";
                 int id1 = getNumericInput();
-                cout << "Digite o ID do segundo vetor (reta): ";
+                cout << "Digite o ID do segundo vetor: ";
                 int id2 = getNumericInput();
                 
-                Line* v1 = nullptr;
-                Line* v2 = nullptr;
+                Vector2D* v1 = nullptr;
+                Vector2D* v2 = nullptr;
                 for (auto obj : geometricObjects) {
-                    if (obj->getId() == id1 && obj->type() == geometricObject::Type::Line) {
-                        v1 = dynamic_cast<Line*>(obj);
+                    if (obj->getId() == id1 && obj->type() == geometricObject::Type::Vector2D) {
+                        v1 = dynamic_cast<Vector2D*>(obj);
                     }
-                    if (obj->getId() == id2 && obj->type() == geometricObject::Type::Line) {
-                        v2 = dynamic_cast<Line*>(obj);
+                    if (obj->getId() == id2 && obj->type() == geometricObject::Type::Vector2D) {
+                        v2 = dynamic_cast<Vector2D*>(obj);
                     }
                 }
                 
@@ -515,19 +508,19 @@ void Menu::manageCalculator() {
                     cout << "Um ou ambos os vetores não encontrados." << endl;
                 }
             } else if (subopt == 6) {
-                cout << "Digite o ID do primeiro vetor (reta): ";
+                cout << "Digite o ID do primeiro vetor: ";
                 int id1 = getNumericInput();
-                cout << "Digite o ID do segundo vetor (reta): ";
+                cout << "Digite o ID do segundo vetor: ";
                 int id2 = getNumericInput();
                 
-                Line* v1 = nullptr;
-                Line* v2 = nullptr;
+                Vector2D* v1 = nullptr;
+                Vector2D* v2 = nullptr;
                 for (auto obj : geometricObjects) {
-                    if (obj->getId() == id1 && obj->type() == geometricObject::Type::Line) {
-                        v1 = dynamic_cast<Line*>(obj);
+                    if (obj->getId() == id1 && obj->type() == geometricObject::Type::Vector2D) {
+                        v1 = dynamic_cast<Vector2D*>(obj);
                     }
-                    if (obj->getId() == id2 && obj->type() == geometricObject::Type::Line) {
-                        v2 = dynamic_cast<Line*>(obj);
+                    if (obj->getId() == id2 && obj->type() == geometricObject::Type::Vector2D) {
+                        v2 = dynamic_cast<Vector2D*>(obj);
                     }
                 }
                 
@@ -538,13 +531,13 @@ void Menu::manageCalculator() {
                     cout << "Um ou ambos os vetores não encontrados." << endl;
                 }
             } else if (subopt == 7) {
-                cout << "Digite o ID do vetor (reta): ";
+                cout << "Digite o ID do vetor: ";
                 int vid = getNumericInput();
                 
-                Line* v = nullptr;
+                Vector2D* v = nullptr;
                 for (auto obj : geometricObjects) {
-                    if (obj->getId() == vid && obj->type() == geometricObject::Type::Line) {
-                        v = dynamic_cast<Line*>(obj);
+                    if (obj->getId() == vid && obj->type() == geometricObject::Type::Vector2D) {
+                        v = dynamic_cast<Vector2D*>(obj);
                     }
                 }
                 
@@ -555,23 +548,21 @@ void Menu::manageCalculator() {
                     cout << "Vetor não encontrado." << endl;
                 }
             } else if (subopt == 8) {
-                cout << "Digite o ID do vetor (reta): ";
+                cout << "Digite o ID do vetor: ";
                 int vid = getNumericInput();
                 
-                Line* v = nullptr;
+                Vector2D* v = nullptr;
                 for (auto obj : geometricObjects) {
-                    if (obj->getId() == vid && obj->type() == geometricObject::Type::Line) {
-                        v = dynamic_cast<Line*>(obj);
+                    if (obj->getId() == vid && obj->type() == geometricObject::Type::Vector2D) {
+                        v = dynamic_cast<Vector2D*>(obj);
                     }
                 }
                 
                 if (v) {
                     try {
-                        Line normalized = Calculator::normalize(*v);
-                        cout << "Vetor normalizado: (";
-                        normalized.getP2().print();
-                        cout << ")" << endl;
-                        Line* newVec = new Line(normalized);
+                        Vector2D normalized = Calculator::normalize(*v);
+                        cout << "Vetor normalizado: (" << normalized.getX() << ", " << normalized.getY() << ")" << endl;
+                        Vector2D* newVec = new Vector2D(normalized);
                         askAddResult(newVec);
                     } catch (const std::exception& e) {
                         cout << "Erro: " << e.what() << endl;

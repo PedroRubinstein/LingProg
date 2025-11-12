@@ -1,12 +1,13 @@
+#ifndef CALCULATOR_H
+#define CALCULATOR_H
+
 #include "point.h"
+#include "vector2d.h"
 #include "line.h"
 #include "polygon.h"
 #include <iostream>
 #include <cmath>
 #include <vector>
-
-#ifndef CALCULATOR_H
-#define CALCULATOR_H
 
 class Calculator {
 public:
@@ -14,16 +15,14 @@ public:
     ~Calculator() = default;
 
     // ===== POINT OPERATIONS =====
-    // Point + Vector (represented as Line from origin) = Point (translation)
-    static Point addPointVector(const Point& p, const Line& vec) {
-        double dx = vec.getP2().getX() - vec.getP1().getX();
-        double dy = vec.getP2().getY() - vec.getP1().getY();
-        return Point(p.getX() + dx, p.getY() + dy);
+    // Point + Vector = Point (translation)
+    static Point addPointVector(const Point& p, const Vector2D& vec) {
+        return Point(p.getX() + vec.getX(), p.getY() + vec.getY());
     }
 
-    // Point - Point = Vector (represented as Line)
-    static Line subtractPoints(const Point& p1, const Point& p2) {
-        return Line(p2, p1);  // Vector from p2 to p1
+    // Point - Point = Vector
+    static Vector2D subtractPoints(const Point& p1, const Point& p2) {
+        return Vector2D(p1.getX() - p2.getX(), p1.getY() - p2.getY());
     }
 
     // Distance between two points
@@ -36,67 +35,45 @@ public:
         return Point((p1.getX() + p2.getX()) / 2.0, (p1.getY() + p2.getY()) / 2.0);
     }
 
-    // ===== VECTOR OPERATIONS (using Line class) =====
-    // Vector addition (Line + Line = Line)
-    static Line addVectors(const Line& v1, const Line& v2) {
-        double dx1 = v1.getP2().getX() - v1.getP1().getX();
-        double dy1 = v1.getP2().getY() - v1.getP1().getY();
-        double dx2 = v2.getP2().getX() - v2.getP1().getX();
-        double dy2 = v2.getP2().getY() - v2.getP1().getY();
-        return Line(Point(0.0, 0.0), Point(dx1 + dx2, dy1 + dy2));
+    // ===== VECTOR OPERATIONS =====
+    // Vector addition (Vector2D + Vector2D = Vector2D)
+    static Vector2D addVectors(const Vector2D& v1, const Vector2D& v2) {
+        return Vector2D(v1.getX() + v2.getX(), v1.getY() + v2.getY());
     }
 
-    // Vector subtraction (Line - Line = Line)
-    static Line subtractVectors(const Line& v1, const Line& v2) {
-        double dx1 = v1.getP2().getX() - v1.getP1().getX();
-        double dy1 = v1.getP2().getY() - v1.getP1().getY();
-        double dx2 = v2.getP2().getX() - v2.getP1().getX();
-        double dy2 = v2.getP2().getY() - v2.getP1().getY();
-        return Line(Point(0.0, 0.0), Point(dx1 - dx2, dy1 - dy2));
+    // Vector subtraction (Vector2D - Vector2D = Vector2D)
+    static Vector2D subtractVectors(const Vector2D& v1, const Vector2D& v2) {
+        return Vector2D(v1.getX() - v2.getX(), v1.getY() - v2.getY());
     }
 
-    // Scalar multiplication (scalar * Vector = Vector)
-    static Line scalarMultiply(const Line& v, double scalar) {
-        double dx = v.getP2().getX() - v.getP1().getX();
-        double dy = v.getP2().getY() - v.getP1().getY();
-        return Line(Point(0.0, 0.0), Point(dx * scalar, dy * scalar));
+    // Scalar multiplication (scalar * Vector2D = Vector2D)
+    static Vector2D scalarMultiply(const Vector2D& v, double scalar) {
+        return Vector2D(v.getX() * scalar, v.getY() * scalar);
     }
 
-    // Scalar division (Vector / scalar = Vector)
-    static Line scalarDivide(const Line& v, double scalar) {
+    // Scalar division (Vector2D / scalar = Vector2D)
+    static Vector2D scalarDivide(const Vector2D& v, double scalar) {
         if (scalar == 0) throw std::runtime_error("Division by zero");
-        double dx = v.getP2().getX() - v.getP1().getX();
-        double dy = v.getP2().getY() - v.getP1().getY();
-        return Line(Point(0.0, 0.0), Point(dx / scalar, dy / scalar));
+        return Vector2D(v.getX() / scalar, v.getY() / scalar);
     }
 
-    // Dot product (Line . Line = scalar)
-    static double dotProduct(const Line& v1, const Line& v2) {
-        double dx1 = v1.getP2().getX() - v1.getP1().getX();
-        double dy1 = v1.getP2().getY() - v1.getP1().getY();
-        double dx2 = v2.getP2().getX() - v2.getP1().getX();
-        double dy2 = v2.getP2().getY() - v2.getP1().getY();
-        return dx1 * dx2 + dy1 * dy2;
+    // Dot product (Vector2D . Vector2D = scalar)
+    static double dotProduct(const Vector2D& v1, const Vector2D& v2) {
+        return v1.getX() * v2.getX() + v1.getY() * v2.getY();
     }
 
     // Cross product (returns scalar: signed area)
-    static double crossProduct(const Line& v1, const Line& v2) {
-        double dx1 = v1.getP2().getX() - v1.getP1().getX();
-        double dy1 = v1.getP2().getY() - v1.getP1().getY();
-        double dx2 = v2.getP2().getX() - v2.getP1().getX();
-        double dy2 = v2.getP2().getY() - v2.getP1().getY();
-        return dx1 * dy2 - dy1 * dx2;
-    }  
+    static double crossProduct(const Vector2D& v1, const Vector2D& v2) {
+        return v1.getX() * v2.getY() - v1.getY() * v2.getX();
+    }
 
     // Magnitude (norm) of a vector
-    static double magnitude(const Line& v) {
-        double dx = v.getP2().getX() - v.getP1().getX();
-        double dy = v.getP2().getY() - v.getP1().getY();
-        return std::sqrt(dx * dx + dy * dy);
+    static double magnitude(const Vector2D& v) {
+        return std::sqrt(v.getX() * v.getX() + v.getY() * v.getY());
     }
 
     // Normalize a vector
-    static Line normalize(const Line& v) {
+    static Vector2D normalize(const Vector2D& v) {
         double mag = magnitude(v);
         if (mag == 0) throw std::runtime_error("Cannot normalize zero vector");
         return scalarDivide(v, mag);
@@ -115,14 +92,24 @@ public:
 
     // Check if two segments are parallel
     static bool areParallel(const Line& seg1, const Line& seg2) {
-        double cross = crossProduct(seg1, seg2);
+        // Convert line segments to vectors
+        Vector2D v1(seg1.getP2().getX() - seg1.getP1().getX(), 
+                    seg1.getP2().getY() - seg1.getP1().getY());
+        Vector2D v2(seg2.getP2().getX() - seg2.getP1().getX(), 
+                    seg2.getP2().getY() - seg2.getP1().getY());
+        double cross = crossProduct(v1, v2);
         // Parallel if cross product is ~0
         return std::abs(cross) < 1e-9;
     }
 
     // Check if two segments are perpendicular
     static bool arePerpendicular(const Line& seg1, const Line& seg2) {
-        double dot = dotProduct(seg1, seg2);
+        // Convert line segments to vectors
+        Vector2D v1(seg1.getP2().getX() - seg1.getP1().getX(), 
+                    seg1.getP2().getY() - seg1.getP1().getY());
+        Vector2D v2(seg2.getP2().getX() - seg2.getP1().getX(), 
+                    seg2.getP2().getY() - seg2.getP1().getY());
+        double dot = dotProduct(v1, v2);
         // Perpendicular if dot product is ~0
         return std::abs(dot) < 1e-9;
     }

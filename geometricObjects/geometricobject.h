@@ -10,6 +10,7 @@ public:
         Unknown,
         Point,
         Line,
+        Vector2D,
         Polygon,
         Circumference
     };

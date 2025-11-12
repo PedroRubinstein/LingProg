@@ -15,8 +15,8 @@ public:
     void setP2(const Point &p);
 
     // Overrides
-    void print() const override;
-    geometricObject::Type type() const override;
+    void print() const;
+    geometricObject::Type type() const;
 
 private:
     Point m_p1;

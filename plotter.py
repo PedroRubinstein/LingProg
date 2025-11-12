@@ -11,11 +11,13 @@ _last_figure = None
 def plot_objects(shapes):
     """
     Plot a heterogeneous collection of shapes.
-    Each shape is a dict with a 'type' field among {'point','polygon','circumference'} and
+    Each shape is a dict with a 'type' field among {'point','polygon','circumference','line','vector'} and
     the required parameters:
       - point: {'type':'point','x':float,'y':float}
       - polygon: {'type':'polygon','x':list[float],'y':list[float]}
       - circumference: {'type':'circumference','center':(x,y),'radius':float}
+      - line: {'type':'line','x':[x1,x2],'y':[y1,y2]}
+      - vector: {'type':'vector','x':float,'y':float}
     """
     fig, ax = plt.subplots()
     for s in shapes:
@@ -45,6 +47,16 @@ def plot_objects(shapes):
             y = list(s.get('y', []))
             if len(x) == 2 and len(y) == 2:
                 ax.plot(x, y, '-k', linewidth=1.5)
+        elif t == 'vector':
+            try:
+                x = s.get('x', 0)
+                y = s.get('y', 0)
+                # Draw vector as an arrow from origin
+                ax.arrow(0, 0, x, y, head_width=0.15, head_length=0.1, fc='tab:red', ec='tab:red')
+                # Plot the tip of the vector
+                ax.plot([x], [y], 'ro', markersize=4)
+            except Exception as e:
+                print(f"[plotter.py] ERROR in vector processing: {e}", file=sys.stderr)
         else:
             #unknown: skip
             pass

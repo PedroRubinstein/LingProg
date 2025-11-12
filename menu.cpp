@@ -146,8 +146,9 @@ void Menu::addObject(geometricObject *obj) {
     cout << "Selecione o tipo de objeto a adicionar:" << endl;
     cout << "1 - Ponto" << endl;
     cout << "2 - Reta" << endl;
-    cout << "3 - Polígono" << endl;
-    cout << "4 - Circunferência" << endl;
+    cout << "3 - Vetor" << endl;
+    cout << "4 - Polígono" << endl;
+    cout << "5 - Circunferência" << endl;
 
     int objectType = getNumericInput();
     switch (objectType) {
@@ -176,6 +177,18 @@ void Menu::addObject(geometricObject *obj) {
             break;
         }
         case 3: {
+            cout << "Adicionar Vetor selecionado." << endl;
+            double x, y;
+            cout << "Digite a coordenada x do vetor: ";
+            cin >> x;
+            cout << "Digite a coordenada y do vetor: ";
+            cin >> y;
+            geometricObjects.push_back(new Vector2D(x, y));
+            geometricObjects.back()->setId(objectCounter++);
+            cout << "Vetor adicionado com sucesso." << endl;
+            break;
+        }
+        case 4: {
             cout << "Adicionar Polígono selecionado." << endl;
             int numVertices;
             cout << "Digite o número de vértices: ";
@@ -194,7 +207,7 @@ void Menu::addObject(geometricObject *obj) {
             cout << "Polígono adicionado com sucesso." << endl;
             break;
         }
-        case 4: {
+        case 5: {
             cout << "Adicionar Circunferência selecionado." << endl;
             double centerX, centerY, radius;
             cout << "Digite a coordenada x do centro: ";

@@ -2,6 +2,7 @@
 #include "point.h"
 #include "line.h"
 #include "circumference.h"
+#include "vector2d.h"
 #include <Python.h>
 #include <vector>
 #include <iostream>
@@ -247,6 +248,13 @@ void Plotter::plot(const std::vector<geometricObject*> &objects) {
                     PyErr_Print();
                 }
                 Py_DECREF(center);
+                break;
+            }
+            case geometricObject::Type::Vector2D: {
+                auto* v = dynamic_cast<Vector2D*>(obj);
+                dict_set_string(shape, "type", "vector");
+                dict_set_double(shape, "x", v->getX());
+                dict_set_double(shape, "y", v->getY());
                 break;
             }
             default:

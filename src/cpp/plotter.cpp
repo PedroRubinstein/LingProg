@@ -1,11 +1,13 @@
-#include "plotter.h"
-#include "point.h"
-#include "line.h"
-#include "circumference.h"
-#include "vector2d.h"
+
 #include <Python.h>
 #include <vector>
 #include <iostream>
+
+#include "plotter.h"
+#include "geometricObjects/point.h"
+#include "geometricObjects/line.h"
+#include "geometricObjects/circumference.h"
+#include "geometricObjects/vector2d.h"
 
 namespace {
     // Helper to set string key to double value in a dict

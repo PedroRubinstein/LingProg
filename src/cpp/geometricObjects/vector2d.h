@@ -1,7 +1,8 @@
-#include "geometricobject.h"
-
 #ifndef VECTOR2D_H
 #define VECTOR2D_H
+
+#include <iostream>
+#include "geometricobject.h"
 
 class Vector2D : public geometricObject {
 public:
@@ -14,7 +15,6 @@ public:
     void setY(double y);
 
     // Overrides
-    void print() const;
     geometricObject::Type type() const;
 
 private:

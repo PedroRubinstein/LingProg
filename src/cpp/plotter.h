@@ -1,9 +1,10 @@
 #ifndef PLOTTER_H
 #define PLOTTER_H
 
-#include "geometricobject.h"
-#include "polygon.h"
 #include <vector>
+
+#include "geometricObjects/geometricobject.h"
+#include "geometricObjects/polygon.h"
 
 class Plotter {
 public:

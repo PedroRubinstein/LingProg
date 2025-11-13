@@ -2,12 +2,12 @@
 #include <limits>
 #include <vector>
 #include <string>
-#include "menu.h"
-#include "polygon.h"
-#include "line.h"
-#include "circumference.h"
-#include "vector2d.h"
 
+#include "menu.h"
+#include "geometricObjects/polygon.h"
+#include "geometricObjects/line.h"
+#include "geometricObjects/circumference.h"
+#include "geometricObjects/vector2d.h"
 
 using std::cin;
 using std::cout;
@@ -251,8 +251,19 @@ void Menu::listObjects() {
     cout << "Objetos geométricos armazenados:" << endl;
     for (const auto& obj : geometricObjects) {
         cout << "ID: " << obj->getId() << " - ";
-        obj->print();
-        cout << endl;
+	// Finish this switch case later
+	switch (obj->type()) {
+		case geometricObject::Type::Point:
+			cout << (Point*)obj << endl;
+			break;    
+		case geometricObject::Type::Line:
+			cout << (Line*)obj << endl;
+			break;
+		default:
+			cout << "Unknown object type" << endl;
+			break;
+	}
+	cout << endl;
     }
 }
 

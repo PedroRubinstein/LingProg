@@ -2,6 +2,7 @@
 #define GEOMETRICOBJECT_H
 
 #include <string>
+#include <iostream>
 
 class geometricObject {
 public:
@@ -20,8 +21,6 @@ public:
 
     void setId(int newId) { id = newId; }
     int getId() const { return id; }
-
-    virtual void print() const = 0;
 
     // Returns the type of the geometric object
     virtual Type type() const = 0;

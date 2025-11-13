@@ -1,51 +1,46 @@
 CXX = g++
-CXXFLAGS = -Wall -Wextra -I./geometricObjects $(shell python3-config --cflags)
-# Use --embed to get -lpythonX.Y when embedding the interpreter (Python ≥3.8)
+
+CXXFLAGS = -Wall -Wextra -Isrc/cpp -Isrc/cpp/geometricObjects $(shell python3-config --cflags)
+
 LDFLAGS = $(shell python3-config --embed --ldflags 2>/dev/null || python3-config --ldflags)
 
-# Source and object files
-SRCS = main.cpp menu.cpp geometricObjects/circumference.cpp geometricObjects/point.cpp geometricObjects/polygon.cpp geometricObjects/line.cpp geometricObjects/vector2d.cpp plotter.cpp
-OBJS = main.o menu.o circumference.o point.o polygon.o line.o vector2d.o plotter.o
-
-# Output executable
+BUILD_DIR = build
 TARGET = main
 
-# Default rule
+# 1. Liste seus fontes
+SRCS_MAIN = main.cpp menu.cpp plotter.cpp calculator.cpp
+SRCS_GEO = geometricObjects/circumference.cpp geometricObjects/point.cpp geometricObjects/polygon.cpp geometricObjects/line.cpp geometricObjects/vector2d.cpp
+
+SRCS_CPP = $(addprefix src/cpp/, $(SRCS_MAIN))
+SRCS_GEO_CPP = $(addprefix src/cpp/, $(SRCS_GEO))
+SRCS = $(SRCS_CPP) $(SRCS_GEO_CPP)
+
+# 2. Gere a lista de OBJS MANTENDO a estrutura de pastas
+#    Isto transforma "src/cpp/main.cpp" em "build/main.o"
+#    E "src/cpp/geometricObjects/point.cpp" em "build/geometricObjects/point.o"
+OBJS = $(patsubst src/cpp/%.cpp, $(BUILD_DIR)/%.o, $(SRCS))
+
+# 3. Regras principais
 all: $(TARGET)
 
-# Linking
 $(TARGET): $(OBJS)
 	$(CXX) -o $(TARGET) $(OBJS) $(LDFLAGS)
 
-# Compilation rule for .cpp -> .o
-%.o: %.cpp
+# 4. A REGRA DE PADRÃO MÁGICA (Substitui todas as regras .o explícitas)
+#    Esta regra única lida com TUDO:
+$(BUILD_DIR)/%.o: src/cpp/%.cpp
+	@mkdir -p $(dir $@)  # <--- AQUI ESTÁ A MÁGICA!
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Explicit rules for geometric objects
-circumference.o: geometricObjects/circumference.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-point.o: geometricObjects/point.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-polygon.o: geometricObjects/polygon.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-line.o: geometricObjects/line.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-vector2d.o: geometricObjects/vector2d.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-# Clean up
+# 5. Limpeza
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(TARGET)
+	rm -rf $(BUILD_DIR)
 
-# Run the program
 run: $(TARGET)
 	./$(TARGET)
 
-# Debug
 
+# Debug
 debug: CXXFLAGS += -DDEBUG -g
 debug: clean $(TARGET)

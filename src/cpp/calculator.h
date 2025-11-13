@@ -1,13 +1,14 @@
 #ifndef CALCULATOR_H
 #define CALCULATOR_H
 
-#include "point.h"
-#include "vector2d.h"
-#include "line.h"
-#include "polygon.h"
 #include <iostream>
 #include <cmath>
 #include <vector>
+
+#include "geometricObjects/point.h"
+#include "geometricObjects/vector2d.h"
+#include "geometricObjects/line.h"
+#include "geometricObjects/polygon.h"
 
 class Calculator {
 public:

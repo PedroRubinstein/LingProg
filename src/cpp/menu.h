@@ -1,10 +1,11 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include "geometricobject.h"
+#include <vector>
+
+#include "geometricObjects/geometricobject.h"
 #include "plotter.h"
 #include "calculator.h"
-#include <vector>
 
 class Menu {
     public:

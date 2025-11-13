@@ -21,10 +21,6 @@ void Vector2D::setY(double y) {
     m_y = y;
 }
 
-void Vector2D::print() const {
-    std::cout << "Vector2D(" << m_x << ", " << m_y << ")" << std::endl;
-}
-
 geometricObject::Type Vector2D::type() const {
     return geometricObject::Type::Vector2D;
 }

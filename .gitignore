@@ -1,5 +1,6 @@
 # Compilation outputs
 *.o
+build/
 main
 
 # Git

@@ -9,7 +9,7 @@ TARGET = main
 
 # 1. Liste seus fontes
 SRCS_MAIN = main.cpp menu.cpp plotter.cpp calculator.cpp
-SRCS_GEO = geometricObjects/circumference.cpp geometricObjects/point.cpp geometricObjects/polygon.cpp geometricObjects/line.cpp geometricObjects/vector2d.cpp
+SRCS_GEO = geometricObjects/circumference.cpp geometricObjects/polygon.cpp geometricObjects/line.cpp geometricObjects/vector2d.cpp
 
 SRCS_CPP = $(addprefix src/cpp/, $(SRCS_MAIN))
 SRCS_GEO_CPP = $(addprefix src/cpp/, $(SRCS_GEO))

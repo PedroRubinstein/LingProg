@@ -1,26 +1,29 @@
 #ifndef CIRCUMFERENCE_H
 #define CIRCUMFERENCE_H
 
+#include <ostream>
 #include "geometricobject.h"
-#include "point.h"
-#include <string>
+#include "vector2d.h"
+
+typedef long double ld;
 
 class Circumference : public geometricObject {
 public:
     Circumference();
-    Circumference(const Point &center, double radius);
+    Circumference(const Vector2D &center, double radius);
 
     void setRadius(double radius);
-    void setCenter(const Point &center);
+    void setCenter(const Vector2D &center);
 
-    double getRadius() const;
-    const Point& getCenter() const;
+    ld getRadius() const;
+    const Vector2D& getCenter() const;
 
-    Type type() const;
-    void print() const;
+    geometricObject::Type type() const override;
 
-private:
-    Point m_center;
+    friend std::ostream& operator<<(std::ostream& out, const Circumference& c);
+
+	private:
+    Vector2D m_center;
     double m_radius{0.0};
 };
 

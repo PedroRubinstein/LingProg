@@ -1,26 +1,26 @@
-
 #ifndef POLYGON_H
 #define POLYGON_H
 
-#include "point.h"
 #include <vector>
-#include <string>
+#include <ostream>   
+#include "geometricobject.h"
+#include "vector2d.h"
 
 class Polygon : public geometricObject {
 public:
     Polygon() = default;
-    Polygon(const std::vector<Point> &);
+    Polygon(const std::vector<Vector2D> &pts);
 
-    void addVertex(const Point &);
-    void setVertices(const std::vector<Point> &pts);
-    const std::vector<Point>& getVertices() const;
+    void addVertex(const Vector2D &p);
+    void setVertices(const std::vector<Vector2D> &pts);
+    const std::vector<Vector2D>& getVertices() const;
 
-    // Overrides
-    void print() const;
-    geometricObject::Type type() const;
+    geometricObject::Type type() const override;
+
+    friend std::ostream& operator<<(std::ostream& out, const Polygon& p);
 
 private:
-    std::vector<Point> m_vertices;
+    std::vector<Vector2D> m_vertices;
 };
 
-#endif // POLYGON_H
+#endif

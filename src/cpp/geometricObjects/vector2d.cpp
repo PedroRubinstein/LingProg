@@ -26,24 +26,12 @@ Vector2D Vector2D::operator-(const Vector2D& other) const {
     return Vector2D(m_x - other.m_x, m_y - other.m_y);
 }
 
-ld Vector2D::dot(const Vector2D& other) const {
+ld Vector2D::operator*(const Vector2D& other) const{
     return m_x * other.m_x + m_y * other.m_y;
 }
 
-ld Vector2D::cross(const Vector2D& other) const {
+ld Vector2D::operator^(const Vector2D& other) const{
     return m_x * other.m_y - m_y * other.m_x;
-}
-
-ld Vector2D::magnitude() const {
-    return std::sqrt(m_x * m_x + m_y * m_y);
-}
-
-Vector2D Vector2D::normalized() const {
-    ld mag = magnitude();
-    if (mag == 0) {
-        throw std::runtime_error("Cannot normalize zero vector");
-    }
-    return Vector2D(m_x / mag, m_y / mag);
 }
 
 Vector2D& Vector2D::operator+=(const Vector2D& other) {
@@ -63,6 +51,6 @@ std::ostream& operator<<(std::ostream &out, const Vector2D &vector) {
     return out;
 }
 
-ld abs(const Vector2D& vec) {
-    return vec.magnitude();
+ld abs(Vector2D& vec) {
+    return sqrt(vec.getX() * vec.getX() + vec.getY() * vec.getY());
 }

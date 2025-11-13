@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "plotter.h"
-#include "geometricObjects/point.h"
+// #include "geometricObjects/point.h" Deixou de existir, todo ponto é um vector2D
 #include "geometricObjects/line.h"
 #include "geometricObjects/circumference.h"
 #include "geometricObjects/vector2d.h"
@@ -172,7 +172,7 @@ void Plotter::plot(const std::vector<geometricObject*> &objects) {
 
         switch (obj->type()) {
             case geometricObject::Type::Point: {
-                auto* p = dynamic_cast<Point*>(obj);
+                auto* p = dynamic_cast<Vector2D*>(obj);
                 dict_set_string(shape, "type", "point");
                 dict_set_double(shape, "x", p->getX());
                 dict_set_double(shape, "y", p->getY());

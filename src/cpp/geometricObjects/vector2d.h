@@ -23,10 +23,8 @@ public:
 
     Vector2D operator+(const Vector2D& other) const;
     Vector2D operator-(const Vector2D& other) const;
-    ld dot(const Vector2D& other) const;
-    ld cross(const Vector2D& other) const;
-    ld magnitude() const;
-    Vector2D normalized() const;
+    ld operator*(const Vector2D& other) const;
+    ld operator^(const Vector2D& other) const;
     Vector2D& operator+=(const Vector2D& other);
     Vector2D& operator-=(const Vector2D& other);
 

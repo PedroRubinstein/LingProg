@@ -1,4 +1,3 @@
-
 #ifndef POINT_H
 #define POINT_H
 
@@ -15,8 +14,9 @@ public:
 
     double distanceTo(const Point &other) const;
 
+    friend ostream& operator<<(ostream& out, const Point pt)
+
     // Overrides
-    void print() const;
     geometricObject::Type type() const;
 
 private:

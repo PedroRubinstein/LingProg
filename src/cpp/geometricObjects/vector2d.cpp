@@ -1,6 +1,8 @@
 #include "vector2d.h"
 #include <iostream>
 
+using namespace std;
+
 Vector2D::Vector2D() : m_x(0.0), m_y(0.0) {}
 
 Vector2D::Vector2D(double x, double y) : m_x(x), m_y(y) {}
@@ -19,6 +21,11 @@ void Vector2D::setX(double x) {
 
 void Vector2D::setY(double y) {
     m_y = y;
+}
+
+ostream& operator<<(ostream &out, const Vector2D &vector){
+	return 	out << "Vector2D(" << vector.getId() << "): x=" 
+		<< vector.m_x << " , y=" << vector.m_y << endl;
 }
 
 geometricObject::Type Vector2D::type() const {

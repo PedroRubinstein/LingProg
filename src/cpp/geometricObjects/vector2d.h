@@ -4,6 +4,8 @@
 #include <iostream>
 #include "geometricobject.h"
 
+using namespace std;
+
 class Vector2D : public geometricObject {
 public:
     Vector2D();
@@ -13,6 +15,8 @@ public:
     double getY() const;
     void setX(double x);
     void setY(double y);
+
+    friend ostream& operator<<(ostream &out, const Vector2D &vector);
 
     // Overrides
     geometricObject::Type type() const;

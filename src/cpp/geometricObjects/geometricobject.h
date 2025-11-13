@@ -1,8 +1,8 @@
-#ifndef GEOMETRICOBJECT_H
-#define GEOMETRICOBJECT_H
-
 #include <string>
 #include <iostream>
+
+#ifndef GEOMETRICOBJECT_H
+#define GEOMETRICOBJECT_H
 
 class geometricObject {
 public:

@@ -30,7 +30,7 @@ Plotter::Plotter() {
     if (!Py_IsInitialized()) {
         Py_Initialize();
         PyRun_SimpleString("import sys, os");
-        PyRun_SimpleString("sys.path.insert(0, os.getcwd())");
+        PyRun_SimpleString("sys.path.insert(0, os.path.join(os.getcwd(), 'src', 'python'))");
     }
 }
 
@@ -42,7 +42,7 @@ bool Plotter::saveFigure(const std::string &filename) {
     if (!Py_IsInitialized()) {
         Py_Initialize();
         PyRun_SimpleString("import sys, os");
-        PyRun_SimpleString("sys.path.insert(0, os.getcwd())");
+        PyRun_SimpleString("sys.path.insert(0, os.path.join(os.getcwd(), 'src', 'python'))");
     }
 
     PyGILState_STATE gstate = PyGILState_Ensure();
@@ -117,7 +117,7 @@ void Plotter::plot(const std::vector<geometricObject*> &objects) {
     if (!Py_IsInitialized()) {
         Py_Initialize();
         PyRun_SimpleString("import sys, os");
-        PyRun_SimpleString("sys.path.insert(0, os.getcwd())");
+        PyRun_SimpleString("sys.path.insert(0, os.path.join(os.getcwd(), 'src', 'python'))");
     }
 
     PyGILState_STATE gstate = PyGILState_Ensure();

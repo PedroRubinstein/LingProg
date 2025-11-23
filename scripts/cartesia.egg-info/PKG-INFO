@@ -1,0 +1,8 @@
+Metadata-Version: 2.4
+Name: cartesia
+Version: 0.1.0
+Summary: Hybrid C++/Python Geometric Modeling Tool
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: matplotlib
+Requires-Dist: PyQt5

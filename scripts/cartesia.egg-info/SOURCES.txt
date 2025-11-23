@@ -1,0 +1,6 @@
+pyproject.toml
+scripts/cartesia.egg-info/PKG-INFO
+scripts/cartesia.egg-info/SOURCES.txt
+scripts/cartesia.egg-info/dependency_links.txt
+scripts/cartesia.egg-info/requires.txt
+scripts/cartesia.egg-info/top_level.txt

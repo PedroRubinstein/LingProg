@@ -88,6 +88,7 @@ Cartesia/
 ## Authors
 
 * **Developer**: [Luís Rafael Sena](https://github.com/ifuaslaerl)
+* **Developer**: [Pedro Rubinstein](https://github.com/PedroRubinstein)
 
 ## License
 

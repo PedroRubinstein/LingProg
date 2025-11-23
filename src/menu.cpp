@@ -4,20 +4,14 @@
 #include <vector>
 #include <string>
 
-// Inclui os headers dos objetos geométricos
 #include "vector2d.h"
 #include "line.h"
 #include "polygon.h"
 #include "circumference.h"
 
-// Usando declarações específicas para evitar poluir o namespace global
-using std::cin;
-using std::cout;
-using std::endl;
-using std::string;
+using namespace std;
 
 Menu::~Menu() {
-    // Liberta a memória de todos os objetos criados dinamicamente
     for (auto obj : geometricObjects) {
         delete obj;
     }
@@ -33,7 +27,6 @@ int Menu::getNumericInput() {
             continue;
         }
 
-        // Limpa o resto da linha (caso o utilizador digite "5 abc")
         cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         return input;
     }
@@ -64,7 +57,7 @@ void Menu::showMenu() {
         }
 
         processOption(option);
-        pauseForEnter(); // Pausa após cada ação antes de mostrar o menu novamente
+        pauseForEnter();
     }
 }
 
@@ -134,10 +127,6 @@ void Menu::manageObjects() {
 
 void Menu::manageCalculator() {
     cout << "A funcionalidade da Calculadora Geométrica está temporariamente desativada." << endl;
-    //
-    // A implementação anterior da calculadora (de menu.cpp original)
-    // foi removida para refatoração.
-    //
 }
 
 void Menu::manageConvexHull() {
@@ -163,7 +152,7 @@ void Menu::managePlotter() {
         case 2: {
             cout << "Digite o nome do arquivo para salvar o plot (ex: 'figura.png'): ";
             string filename;
-            std::getline(cin, filename); // Lê a linha inteira
+            std::getline(cin, filename);
             if (plotter.saveFigure(filename)) {
                 cout << "Figura salva com sucesso em " << filename << endl;
             } else {
@@ -182,17 +171,14 @@ void Menu::managePlotter() {
 // --- Sub-métodos de 'manageObjects' ---
 
 void Menu::addObject(geometricObject *obj) {
-    // ID estático para auto-incremento
     static int objectCounter = 0 + getMaxId();
 
-    // Se um objeto foi passado (ex: resultado de uma operação), adicione-o
     if (obj) {
         obj->setId(objectCounter++);
         geometricObjects.push_back(obj);
         return;
     }
 
-    // Menu para adicionar novo objeto
     cout << "Selecione o tipo de objeto a adicionar:" << endl;
     cout << "1 - Vetor (ou Ponto/Vetor de Posição)" << endl;
     cout << "2 - Reta (Segmento)" << endl;
@@ -207,7 +193,7 @@ void Menu::addObject(geometricObject *obj) {
             double x, y;
             cout << "Digite a coordenada x: "; cin >> x;
             cout << "Digite a coordenada y: "; cin >> y;
-            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Limpa o buffer
+            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
             
             geometricObjects.push_back(new Vector2D(x, y));
             geometricObjects.back()->setId(objectCounter++);
@@ -219,9 +205,8 @@ void Menu::addObject(geometricObject *obj) {
             double x1, y1, x2, y2;
             cout << "Ponto 1 (x y): "; cin >> x1 >> y1;
             cout << "Ponto 2 (x y): "; cin >> x2 >> y2;
-            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Limpa o buffer
+            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
             
-            // Usa Vector2D em vez de Point
             geometricObjects.push_back(new Line(Vector2D(x1, y1), Vector2D(x2, y2)));
             geometricObjects.back()->setId(objectCounter++);
             cout << "Reta adicionada com sucesso." << endl;
@@ -233,14 +218,14 @@ void Menu::addObject(geometricObject *obj) {
             cout << "Digite o número de vértices: ";
             numVertices = getNumericInput();
             
-            std::vector<Vector2D> vertices; // Usa Vector2D
+            std::vector<Vector2D> vertices;
             for (int i = 0; i < numVertices; ++i) {
                 double x, y;
                 cout << "Vértice " << (i + 1) << " (x y): ";
                 cin >> x >> y;
-                vertices.emplace_back(x, y); // Usa Vector2D
+                vertices.emplace_back(x, y);
             }
-            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Limpa o buffer
+            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
 
             geometricObjects.push_back(new Polygon(vertices));
             geometricObjects.back()->setId(objectCounter++);
@@ -252,9 +237,8 @@ void Menu::addObject(geometricObject *obj) {
             double centerX, centerY, radius;
             cout << "Centro (x y): "; cin >> centerX >> centerY;
             cout << "Raio: "; cin >> radius;
-            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Limpa o buffer
+            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             
-            // Usa Vector2D
             geometricObjects.push_back(new Circumference(Vector2D(centerX, centerY), radius));
             geometricObjects.back()->setId(objectCounter++);
             cout << "Circunferência adicionada com sucesso." << endl;
@@ -274,7 +258,7 @@ void Menu::removeObject() {
     for (auto it = geometricObjects.begin(); it != geometricObjects.end(); ++it)
     {
         if ((*it)->getId() == idToRemove) {
-            delete *it; // Libertar memória
+            delete *it;
             geometricObjects.erase(it);
             cout << "Objeto com ID " << idToRemove << " removido com sucesso." << endl;
             return;
@@ -298,7 +282,6 @@ void Menu::listObjects() {
         cout << "ID: " << obj->getId() << " - ";
         
         // Polimorfismo com operator<< requer RTTI (dynamic_cast)
-        // Esta é a consequência de remover o virtual print()
         
         if (auto v = dynamic_cast<Vector2D*>(obj)) {
             cout << *v << endl;
@@ -330,10 +313,10 @@ void Menu::askAddResult(geometricObject* result) {
     cout << "Deseja adicionar o resultado como um novo objeto? (1 - Sim, 0 - Não): ";
     int choice = getNumericInput();
     if (choice == 1) {
-        addObject(result); // Adiciona o objeto pré-criado
+        addObject(result);
         cout << "Resultado adicionado com sucesso." << endl;
     } else {
-        delete result; // Se não for adicionado, liberta a memória
+        delete result;
         cout << "Resultado não adicionado." << endl;
     }
 }
@@ -341,5 +324,5 @@ void Menu::askAddResult(geometricObject* result) {
 int Menu::getMaxId() {
     // TO-DO: Implementar a lógica para carregar o ID máximo
     // da base de dados (quando 'saveObjects' for implementado)
-    return 0; // Stub
+    return 0;
 }

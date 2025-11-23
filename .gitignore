@@ -1,8 +1,39 @@
-# Compilation outputs
-*.o
+# --- C++ Build Artifacts ---
 build/
-main
+bin/
+*.o
+*.d
+*.obj
+*.exe
+*.so
+*.dylib
+*.dll
 
-# Git
-.git/
-.gitignore
+# --- Python Build Artifacts ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+develop-eggs/
+eggs/
+parts/
+sdist/
+var/
+
+# --- Virtual Environments ---
+venv/
+env/
+.venv/
+.env
+
+# --- IDE & Editor Configs ---
+.vscode/
+.idea/
+*.swp
+*~
+*.swo
+
+# --- OS Generated Files ---
+.DS_Store
+Thumbs.db

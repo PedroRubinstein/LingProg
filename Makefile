@@ -5,50 +5,58 @@ SRC_DIR := ./src
 INCLUDE_DIR := ./include
 BIN_DIR := ./bin
 
-# Find all source files (including subdirectories)
+# Encontrar todos os arquivos .cpp recursivamente
 SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
 
-# Create object file names mapped to the build directory
+# Mapear objetos para a pasta build
 OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
-
-# Dependency files to track header changes automatically
 DEPS := $(OBJS:.o=.d)
 
-# Compiler settings
+# Detectar configurações do Python
+PYTHON_CFLAGS := $(shell python3-config --cflags)
+PYTHON_LDFLAGS := $(shell python3-config --embed --ldflags 2>/dev/null || python3-config --ldflags)
+PYTHON_LIB_PATH := $(shell python3-config --prefix)/lib
+
+# Compilador
 CXX := g++
-# Note: We include both include/ and include/geometricObjects to keep your 
-# existing short #include "vector2d.h" syntax working.
+
+# Flags de Compilação (Includes + C++17 + Python Headers)
 CXXFLAGS := -Wall -Wextra -std=c++17 -MMD -MP \
             -I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/geometricObjects \
-            $(shell python3-config --cflags)
+            $(PYTHON_CFLAGS)
 
-# Linker settings (for Python embedding)
-# We add -Wl,-rpath to tell the loader where to find libpython at runtime
-PYTHON_LIB_PATH := $(shell python3-config --prefix)/lib
-LDFLAGS := $(shell python3-config --embed --ldflags 2>/dev/null || python3-config --ldflags) \
-           -Wl,-rpath,$(PYTHON_LIB_PATH)
+# Flags do Linker (Onde procurar bibliotecas)
+LDFLAGS := $(PYTHON_LDFLAGS) -Wl,-rpath,$(PYTHON_LIB_PATH)
 
-# --- Rules ---
+# Bibliotecas Específicas (SQLite deve vir aqui!)
+LDLIBS := -lsqlite3
 
-# 1. Link the final executable
+# --- Regras ---
+
+.PHONY: all clean run debug install
+
+all: $(BIN_DIR)/$(TARGET_EXEC)
+
+# Regra de Linkagem: Observe que $(LDLIBS) está no FINAL
 $(BIN_DIR)/$(TARGET_EXEC): $(OBJS)
 	@mkdir -p $(BIN_DIR)
 	@echo "Linking $(TARGET_EXEC)..."
-	@$(CXX) $(OBJS) -o $@ $(LDFLAGS)
+	@$(CXX) $(OBJS) -o $@ $(LDFLAGS) $(LDLIBS)
 	@echo "Build complete: $(BIN_DIR)/$(TARGET_EXEC)"
 
-# 2. Compile C++ source files
+# Regra de Compilação
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
 	@echo "Compiling $<..."
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# 3. Include dependency info
--include $(DEPS)
-
-.PHONY: all clean run debug
-
-all: $(BIN_DIR)/$(TARGET_EXEC)
+# Regra de Instalação (Usa python3 -m pip para evitar erro de PATH)
+install:
+	@echo "Instalando dependências Python..."
+	@python3 -m pip install -e .
+	@echo "Compilando Cartesia..."
+	@$(MAKE) all
+	@echo "Instalação concluída! Execute com: make run"
 
 run: $(BIN_DIR)/$(TARGET_EXEC)
 	@echo "Running Application..."
@@ -60,3 +68,5 @@ clean:
 
 debug: CXXFLAGS += -DDEBUG -g
 debug: clean all
+
+-include $(DEPS)

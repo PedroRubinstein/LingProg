@@ -122,3 +122,7 @@ Semana 1: Fase 1 (Banco de Dados) - Crítico para o funcionamento geral.
 Semana 2: Fase 2 (Calculadora) e Início da Fase 4 (Ajustes Plotter).
 Semana 3: Fase 3 (Algoritmos) - Parte matematicamente mais complexa.
 Semana 4: Testes de Integração finais e Documentação.
+
+TODOS:
+
+Pedro, adiciona o seu nome no pyproject.toml e verifica se eu coloquei tudo certo seu no README.md

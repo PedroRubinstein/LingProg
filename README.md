@@ -1,95 +1,104 @@
 # Cartesia
 
-**Cartesia** is a hybrid C++/Python geometric modeling engine. It leverages the raw performance of C++ for geometric object management and calculations, while embedding a Python interpreter to utilize **Matplotlib** for high-quality visualization.
+**Cartesia** é uma ferramenta de geometria computacional híbrida (C++/Python).O projeto visa aplicar conhecimentos de álgebra linear, algoritmos e estruturas de dados para realizar tarefas geométricas complexas, como o cálculo de Fecho Convexo (Convex Hull) e Círculo Mínimo, além de oferecer visualização gráfica integrada.
 
-## Features
+O sistema utiliza **C++** para o gerenciamento de objetos e cálculos matemáticos, **SQL** (SQLite) para persistência de dados e **Python** (Matplotlib) para renderização gráfica.
 
-* **Hybrid Architecture:** Seamless integration between C++ (backend) and Python (frontend/plotting).
-* **Geometric Primitives:** Support for creating and managing:
-    * Vectors (2D)
-    * Lines (Segments)
-    * Polygons (Arbitrary vertices)
-    * Circumferences (Center + Radius)
-* **Visualization:** Plot geometric objects instantly using Matplotlib.
-* **Command Line Interface:** Interactive menu for object management.
+## Funcionalidades
 
-## Prerequisites
+* **Gerenciamento de Objetos (SQL):** Persistência dinâmica de Pontos (Vetores), Segmentos (Retas), Polígonos e Circunferências.
+* **Calculadora Geométrica:** Operações aritméticas entre vetores e formas geométricas.
+* **Algoritmos Avançados:**
+    * **Polígono Convexo:** Determina o menor polígono convexo que envolve um conjunto de pontos.
+    * **Círculo Mínimo:** Encontra o círculo de menor raio que contém todos os pontos.
+* **Visualização Híbrida:** Plotagem interativa e exportação de figuras via script Python embarcado.
 
-To build and run Cartesia, you need a Linux environment with a C++17 compiler and Python 3.9+ installed with development headers.
+## Pré-requisitos
+
+Para compilar e executar o Cartesia, você precisa de um ambiente Linux com compilador C++17, Python 3.9+ e bibliotecas de desenvolvimento do SQLite.
 
 ### Arch Linux
 ```bash
-sudo pacman -S gcc python python-matplotlib python-pyqt5 base-devel
+sudo pacman -S gcc python python-matplotlib python-pyqt5 sqlite base-devel
 ```
 
 ### Ubuntu / Debian
 ```bash
 sudo apt-get update
-sudo apt-get install g++ python3-dev python3-matplotlib python3-pyqt5 build-essential
+sudo apt-get install g++ python3-dev python3-matplotlib python3-pyqt5 libsqlite3-dev build-essential
 ```
 
-## Installation
+## Instalação
 
-Cartesia uses a combination of `pip` (for Python environment) and `make` (for C++ compilation).
+O projeto utiliza um `Makefile` automatizado que gerencia tanto as dependências do Python quanto a compilação do C++.
 
-1.  **Install Python Dependencies:**
-    This installs the required Python libraries and links the `scripts/` folder in editable mode so the C++ binary can find them.
+1.  **Instalação Completa:**
+    Execute o comando abaixo para instalar as dependências Python (em modo editável) e compilar o binário C++.
 ```bash
-pip install -e .
+make install
 ```
 
-2.  **Compile the C++ Engine:**
-    Use the `Makefile` to compile the source code and link it against the Python library.
+2.  **Apenas Compilar (se já instalado):**
 ```bash
 make
 ```
 
-## Usage
+3.  **Limpar Arquivos de Build:**
+```bash
+make clean
+```
 
-Once compiled, the executable is placed in the `bin/` directory.
+## Como Usar
 
-1.  **Run the Application:**
+Após a compilação, o executável é gerado no diretório `bin/`.
+
+1.  **Executar a Aplicação:**
 ```bash
 ./bin/cartesia
 ```
 
-2.  **Interactive Menu:**
-    * **Option 1:** Add, remove, or list geometric objects.
-    * **Option 5:** Generate a plot of all current objects.
+2.  **Menu Interativo:**
+    O programa apresenta um menu no terminal com as seguintes opções:
 
-    *Example Workflow:*
 ```text
-> 1 (Manage Objects)
-> 1 (Add Object)
-> 3 (Polygon)
-> Enter vertices...
-> 0 (Back)
-> 5 (Visualization) -> Opens a window with the shape
+===== Menu Principal =====
+1 - Gerenciamento de Objetos Geométricos (SQL)
+2 - Calculadora Geométrica
+3 - Polígono Convexo
+4 - Círculo Mínimo
+5 - Visualização (Plotter)
+0 - Sair
 ```
 
-## Project Structure
+## Estrutura do Projeto
 
-The project follows a standard C++ directory layout:
+O projeto foi refatorado para seguir padrões profissionais de C++:
 
 ```text
 Cartesia/
-├── bin/                  # Compiled executable (cartesia)
-├── build/                # Intermediate object files (.o, .d)
-├── include/              # Header files (.h)
-│   └── geometricObjects/ # Geometry class definitions
-├── src/                  # Source files (.cpp)
-│   └── geometricObjects/ # Geometry class implementations
-├── scripts/              # Python plotting scripts
-├── Makefile              # Build configuration
-├── pyproject.toml        # Python project configuration
-└── README.md             # Documentation
+├── bin/                  # Executável compilado (cartesia)
+├── build/                # Arquivos objeto (.o) e dependências (.d)
+├── include/              # Headers (.h)
+│   ├── database.h        # Gerenciador do SQLite
+│   └── geometricObjects/ # Definições de classes (Vector2D, Polygon, etc.)
+├── src/                  # Implementação (.cpp)
+│   ├── main.cpp          # Ponto de entrada
+│   ├── database.cpp      # Implementação do Singleton de Banco de Dados
+│   ├── menu.cpp          # Lógica de interface CLI
+│   └── geometricObjects/ # Lógica das formas geométricas
+├── scripts/              # Scripts Python (plotter.py)
+├── Makefile              # Automação de build (C++ e Python)
+├── pyproject.toml        # Configuração de dependências Python
+└── README.md             # Documentação
 ```
 
-## Authors
+## Autores
 
-* **Developer**: [Luís Rafael Sena](https://github.com/ifuaslaerl)
-* **Developer**: [Pedro Rubinstein](https://github.com/PedroRubinstein)
+* **Luís Rafael Sena**
+* **Pedro Videira Rubinstein**
 
-## License
+Desenvolvido para a disciplina **EEL670**, Setembro de 2025.
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Licença
+
+Este projeto é de código aberto e está licenciado sob a licença MIT.

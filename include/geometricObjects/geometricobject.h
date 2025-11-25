@@ -22,6 +22,7 @@ public:
     int getId() const { return id; }
 
     virtual Type type() const = 0;
+    virtual std::string serialize() const = 0;
 private:
     int id = -1;
 };

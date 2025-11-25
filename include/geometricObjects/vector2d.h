@@ -4,6 +4,7 @@
 #include <ostream>
 #include <stdexcept>
 #include <cmath>
+#include <string>
 #include "geometricobject.h"
 
 using namespace std;
@@ -63,6 +64,8 @@ public:
     }
 
     friend std::ostream& operator<<(std::ostream &out, const Vector2D &vector);
+
+    std::string serialize() const override;
 
 private:
     ld m_x;

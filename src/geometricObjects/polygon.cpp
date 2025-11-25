@@ -28,3 +28,15 @@ std::ostream& operator<<(std::ostream& out, const Polygon& p) {
     out << ")";
     return out;
 }
+
+std::string Polygon::serialize() const {
+    std::string json = "{\"vertices\": [";
+    for (size_t i = 0; i < m_vertices.size(); ++i) {
+        json += m_vertices[i].serialize();
+        if (i < m_vertices.size() - 1) {
+            json += ", ";
+        }
+    }
+    json += "]}";
+    return json;
+}

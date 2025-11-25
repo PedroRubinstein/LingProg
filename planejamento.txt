@@ -14,11 +14,11 @@ FASE 1: INFRAESTRUTURA DE PERSISTÊNCIA (SQLITE)
 Objetivo: Permitir salvar, carregar e remover objetos geométricos de um banco
 de dados local, conforme especificado na seção "Funções externas em SQL".
 
-[ ] TAREFA 1.1: Configuração do Ambiente
+[x] TAREFA 1.1: Configuração do Ambiente
     - Adicionar dependência do SQLite3 no sistema.
     - Criar classe Singleton `DatabaseManager` (include/database.h, src/database.cpp).
     - Criar método `init()` para gerar tabelas se não existirem (Tabela: objects).
-      Schema sugerido: id (PK), type (INT), data (TEXT/JSON), created_at (TIMESTAMP).
+      Schema sugerido: id (PK), type (INT), data (JSON), created_at (TIMESTAMP).
 
 [ ] TAREFA 1.2: Serialização na Classe Abstrata
     - Adicionar método virtual puro em `geometricObject`:

@@ -18,3 +18,8 @@ geometricObject::Type Line::type() const {
 std::ostream& operator<<(std::ostream& out, const Line& l) {
     return out << "Reta(P1: " << l.m_p1 << ", P2: " << l.m_p2 << ")";
 }
+
+std::string Line::serialize() const {
+    // Format: {"p1": {...}, "p2": {...}}
+    return "{\"p1\": " + m_p1.serialize() + ", \"p2\": " + m_p2.serialize() + "}";
+}

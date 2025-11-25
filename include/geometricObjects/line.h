@@ -18,6 +18,7 @@ public:
     geometricObject::Type type() const override;
 
     friend std::ostream& operator<<(std::ostream& out, const Line& l);
+    std::string serialize() const override;
 
 private:
     Vector2D m_p1;

@@ -18,7 +18,8 @@ public:
     geometricObject::Type type() const override;
 
     friend std::ostream& operator<<(std::ostream& out, const Polygon& p);
-
+    
+    std::string serialize() const override;
 private:
     std::vector<Vector2D> m_vertices;
 };

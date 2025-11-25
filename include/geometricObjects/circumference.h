@@ -22,7 +22,9 @@ public:
 
     friend std::ostream& operator<<(std::ostream& out, const Circumference& c);
 
-	private:
+    std::string serialize() const override;
+
+private:
     Vector2D m_center;
     double m_radius{0.0};
 };

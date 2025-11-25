@@ -1,6 +1,7 @@
 #include <iostream> 
 #include <cmath>    
-#include <stdexcept> 
+#include <stdexcept>
+#include <string>
 #include "vector2d.h"
 
 using namespace std;
@@ -53,4 +54,9 @@ std::ostream& operator<<(std::ostream &out, const Vector2D &vector) {
 
 ld abs(Vector2D& vec) {
     return sqrt(vec.getX() * vec.getX() + vec.getY() * vec.getY());
+}
+
+std::string Vector2D::serialize() const {
+    // Format: {"x": 10.5, "y": -5.2}
+    return "{\"x\": " + std::to_string(m_x) + ", \"y\": " + std::to_string(m_y) + "}";
 }

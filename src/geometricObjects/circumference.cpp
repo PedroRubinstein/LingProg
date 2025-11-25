@@ -24,3 +24,9 @@ geometricObject::Type Circumference::type() const {
 std::ostream& operator<<(std::ostream& out, const Circumference& c) {
     return out << "Circunferência(Centro: " << c.m_center << ", Raio: " << c.m_radius << ")";
 }
+
+std::string Circumference::serialize() const {
+    // Format: {"center": {...}, "radius": 5.0}
+    return "{\"center\": " + m_center.serialize() +
+           ", \"radius\": " + std::to_string(m_radius) + "}";
+}

@@ -6,12 +6,12 @@ O sistema utiliza **C++** para o gerenciamento de objetos e cálculos matemátic
 
 ## Funcionalidades
 
-* **Gerenciamento de Objetos (SQL):** Persistência dinâmica de Pontos (Vetores), Segmentos (Retas), Polígonos e Circunferências.
-* **Calculadora Geométrica:** Operações aritméticas entre vetores e formas geométricas.
+* **Gerenciamento de Objetos (SQL):** Persistência dinâmica de Pontos (Vetores), Segmentos (Retas), Polígonos e Circunferências. Inclui funcionalidade de **Reset Completo** do banco de dados.
+* **Calculadora Geométrica:** Operações aritméticas entre vetores, interseção de retas e cálculo de área (com alertas de consistência).
 * **Algoritmos Avançados:**
-    * **Polígono Convexo:** Determina o menor polígono convexo que envolve um conjunto de pontos.
-    * **Círculo Mínimo:** Encontra o círculo de menor raio que contém todos os pontos.
-* **Visualização Híbrida:** Plotagem interativa e exportação de figuras via script Python embarcado.
+    * **Polígono Convexo:** Determina o menor polígono convexo que envolve um conjunto de pontos utilizando os algoritmos **Graham Scan** ou **Monotone Chain**.
+    * **Círculo Mínimo:** (Em desenvolvimento) Encontra o círculo de menor raio que contém todos os pontos.
+* **Visualização Híbrida:** Plotagem interativa com opções de **filtragem por ID ou Tipo**, além de exportação de figuras.
 
 ## Pré-requisitos
 
@@ -64,8 +64,8 @@ Após a compilação, o executável é gerado no diretório `bin/`.
 ===== Menu Principal =====
 1 - Gerenciamento de Objetos Geométricos (SQL)
 2 - Calculadora Geométrica
-3 - Polígono Convexo
-4 - Círculo Mínimo
+3 - Fecho Convexo (Convex Hull)
+4 - Círculo Mínimo (Não implementado)
 5 - Visualização (Plotter)
 0 - Sair
 ```
@@ -79,12 +79,14 @@ Cartesia/
 ├── bin/                  # Executável compilado (cartesia)
 ├── build/                # Arquivos objeto (.o) e dependências (.d)
 ├── include/              # Headers (.h)
+│   ├── algorithms/       # Algoritmos (convexhull.h)
 │   ├── database.h        # Gerenciador do SQLite
 │   └── geometricObjects/ # Definições de classes (Vector2D, Polygon, etc.)
 ├── src/                  # Implementação (.cpp)
 │   ├── main.cpp          # Ponto de entrada
 │   ├── database.cpp      # Implementação do Singleton de Banco de Dados
 │   ├── menu.cpp          # Lógica de interface CLI
+│   ├── algorithms/       # Implementação de Algoritmos (convexhull.cpp)
 │   └── geometricObjects/ # Lógica das formas geométricas
 ├── scripts/              # Scripts Python (plotter.py)
 ├── Makefile              # Automação de build (C++)

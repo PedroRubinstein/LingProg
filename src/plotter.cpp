@@ -1,16 +1,13 @@
-
 #include <Python.h>
 #include <vector>
 #include <iostream>
 
 #include "plotter.h"
-// #include "geometricObjects/point.h" Deixou de existir, todo ponto é um vector2D
 #include "geometricObjects/line.h"
 #include "geometricObjects/circumference.h"
 #include "geometricObjects/vector2d.h"
 
 namespace {
-    // Helper to set string key to double value in a dict
     inline void dict_set_double(PyObject* dict, const char* key, double value) {
         PyObject* pyVal = PyFloat_FromDouble(value);
         if (!pyVal) return;
@@ -27,22 +24,18 @@ namespace {
 }
 
 Plotter::Plotter() {
-    if (!Py_IsInitialized()) {
-        Py_Initialize();
-        PyRun_SimpleString("import sys, os");
-	PyRun_SimpleString("sys.path.insert(0, os.path.abspath('scripts'))");	
-    }
+    // Initialization is now handled in main.cpp
 }
 
 Plotter::~Plotter() {
-    Py_Finalize();
+    // Finalization is now handled in main.cpp
 }
 
 bool Plotter::saveFigure(const std::string &filename) {
+    // Ensure Python is running (Should be true if called from main)
     if (!Py_IsInitialized()) {
-        Py_Initialize();
-        PyRun_SimpleString("import sys, os");
-	PyRun_SimpleString("sys.path.insert(0, os.path.abspath('scripts'))");	
+        std::cerr << "Error: Python not initialized." << std::endl;
+        return false;
     }
 
     PyGILState_STATE gstate = PyGILState_Ensure();
@@ -115,9 +108,8 @@ bool Plotter::saveFigure(const std::string &filename) {
 
 void Plotter::plot(const std::vector<geometricObject*> &objects) {
     if (!Py_IsInitialized()) {
-        Py_Initialize();
-        PyRun_SimpleString("import sys, os");
-        PyRun_SimpleString("sys.path.insert(0, os.path.join(os.getcwd(), 'src', 'python'))");
+        std::cerr << "Error: Python not initialized." << std::endl;
+        return;
     }
 
     PyGILState_STATE gstate = PyGILState_Ensure();
@@ -152,7 +144,6 @@ void Plotter::plot(const std::vector<geometricObject*> &objects) {
         return;
     }
 
-    // Build Python list of shape dicts
     PyObject* pShapes = PyList_New(objects.size());
     if (!pShapes) {
         PyErr_Print();
@@ -245,10 +236,7 @@ void Plotter::plot(const std::vector<geometricObject*> &objects) {
                 }
                 PyTuple_SetItem(center, 0, cx);
                 PyTuple_SetItem(center, 1, cy);
-                int ret = PyDict_SetItemString(shape, "center", center);
-                if (ret != 0) {
-                    PyErr_Print();
-                }
+                PyDict_SetItemString(shape, "center", center);
                 Py_DECREF(center);
                 break;
             }

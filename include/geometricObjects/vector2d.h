@@ -7,7 +7,8 @@
 #include <string>
 #include "geometricobject.h"
 
-using namespace std;
+// REMOVED: using namespace std; (Bad Practice in headers)
+
 typedef long double ld;
 
 class Vector2D : public geometricObject {
@@ -63,6 +64,7 @@ public:
         return *this;
     }
 
+    // Added std:: qualifier
     friend std::ostream& operator<<(std::ostream &out, const Vector2D &vector);
 
     std::string serialize() const override;
@@ -79,4 +81,4 @@ Vector2D operator*(T scalar, const Vector2D& vec) {
 
 ld abs(const Vector2D& vec);
 
-#endif 
+#endif

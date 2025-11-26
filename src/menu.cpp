@@ -74,7 +74,8 @@ void Menu::registerCalculatorOperations() {
             if(!s2) { if(s1->getId()==-1) delete s1; return; }
 
             bool res = Calculator::checkIntersection(*dynamic_cast<Line*>(s1), *dynamic_cast<Line*>(s2));
-            cout << "\n>> Resultado: " << (res ? "INTERSECTAM" : "NÃO INTERSECTAM") << endl;
+            // TYPO FIXED: INTERSECTAM -> INTERCEPTAM
+            cout << "\n>> Resultado: " << (res ? "INTERCEPTAM" : "NÃO INTERCEPTAM") << endl;
 
             if(s1->getId() == -1) delete s1;
             if(s2->getId() == -1) delete s2;
@@ -164,6 +165,8 @@ void Menu::addObject(geometricObject *obj) {
             cout << "Resultado salvo no banco com ID: " << id << endl;
         } else {
             cout << "Erro ao salvar no banco." << endl;
+            // FIX: Prevent Memory Leak
+            delete obj;
         }
         return;
     }
@@ -264,12 +267,10 @@ geometricObject* Menu::getObjectFromUser(int type) {
             return nullptr;
         }
 
-        // --- FEATURE: LISTAR APENAS IDs VÁLIDOS ---
         cout << "\n  [Objetos disponíveis do tipo solicitado]:" << endl;
         bool foundAny = false;
         for (auto* obj : geometricObjects) {
             bool isTypeMatch = false;
-            // Verifica compatibilidade de tipo
             if (type == 1 && dynamic_cast<Vector2D*>(obj)) isTypeMatch = true;
             else if (type == 2 && dynamic_cast<Line*>(obj)) isTypeMatch = true;
             else if (type == 3 && dynamic_cast<Polygon*>(obj)) isTypeMatch = true;
@@ -286,13 +287,11 @@ geometricObject* Menu::getObjectFromUser(int type) {
             cout << "  Dica: Crie um novo objeto temporário ou adicione um no menu principal." << endl;
             return nullptr;
         }
-        // ------------------------------------------
 
         cout << "Digite o ID: ";
         int id = getNumericInput();
         for (auto* obj : geometricObjects) {
             if (obj->getId() == id) {
-                // Double check type safety just in case
                 bool ok = false;
                 if (type == 1 && dynamic_cast<Vector2D*>(obj)) ok = true;
                 if (type == 2 && dynamic_cast<Line*>(obj)) ok = true;

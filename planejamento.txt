@@ -5,121 +5,48 @@
 
 OBJETIVO GERAL:
 Implementar persistência de dados (SQL), calculadora geométrica, algoritmos
-avançados (Convex Hull, Círculo Mínimo) e refinar a visualização, validando
-cada etapa com testes unitários e de integração.
+avançados (Convex Hull, Círculo Mínimo) e refinar a visualização.
 
 --------------------------------------------------------------------------------
 FASE 1: INFRAESTRUTURA DE PERSISTÊNCIA (SQLITE)
 --------------------------------------------------------------------------------
-Objetivo: Permitir salvar, carregar e remover objetos geométricos de um banco
-de dados local, conforme especificado na seção "Funções externas em SQL".
-
 [x] TAREFA 1.1: Configuração do Ambiente
-    - Adicionar dependência do SQLite3 no sistema.
-    - Criar classe Singleton `DatabaseManager` (include/database.h, src/database.cpp).
-    - Criar método `init()` para gerar tabelas se não existirem (Tabela: objects).
-      Schema sugerido: id (PK), type (INT), data (JSON), created_at (TIMESTAMP).
-
 [x] TAREFA 1.2: Serialização na Classe Abstrata
-    - Adicionar método virtual puro em `geometricObject`:
-      virtual std::string serialize() const = 0;
-    - Implementar `serialize()` em:
-      - Vector2D: retornar "x,y"
-      - Line: retornar "x1,y1;x2,y2"
-      - Polygon: retornar "x1,y1;x2,y2;...;xn,yn"
-      - Circumference: retornar "cx,cy;r"
-
 [x] TAREFA 1.3: Implementação dos Métodos de Banco (DatabaseManager)
-    - int insert_object(geometricObject* obj);
-    - geometricObject* get_object_by_id(int id);  <-- Factory method (parse string)
-    - bool delete_object(int id);
-
+    [x] Insert, Delete, Get By ID
+    [x] Clear Database (Reset completo)
 [x] TAREFA 1.4: Integração com Menu
-    - Atualizar Opção 1 (Gerenciamento) para usar `DatabaseManager` em vez de
-      apenas vetor em memória.
-
->> PLANO DE TESTES (FASE 1) <<
-    1. Teste de Conexão: Verificar se o arquivo .db é criado ao iniciar.
-    2. Teste de Inserção: Inserir um Ponto (10, 20) e verificar se retorna ID > 0.
-    3. Teste de Persistência: Fechar o programa, reabrir e listar objetos.
-       O ponto deve estar lá.
-    4. Teste de Recuperação: Buscar o objeto pelo ID retornado e confirmar se X=10 e Y=20.
-    5. Teste de Remoção: Deletar o ID, tentar buscar novamente e esperar retorno nulo/erro.
+    [x] Listar objetos antes de remover
+    [x] Opção de limpar tudo
 
 --------------------------------------------------------------------------------
 FASE 2: CALCULADORA GEOMÉTRICA
 --------------------------------------------------------------------------------
-Objetivo: Implementar operações matemáticas entre formas, conforme seção 2 do PDF.
-
-[x] TAREFA 2.1: Implementação Core (src/calculator.cpp)
-    - Implementar métodos estáticos:
-      - double distance(Vector2D a, Vector2D b);
-      - Vector2D intersection(Line r, Line s);
-      - double polygonArea(Polygon p);
-        (Algoritmo Shoelace)
-      - double dotProduct(Vector2D a, Vector2D b);
-
+[x] TAREFA 2.1: Implementação Core
+    [x] Distância, Interseção, Área (Shoelace)
 [x] TAREFA 2.2: Interface do Menu
-    - Reativar Opção 2 do Menu.
-    - Criar sub-menu para selecionar operação.
-    - Permitir selecionar objetos existentes pelo ID (usando `get_object_by_id`).
-
->> PLANO DE TESTES (FASE 2) <<
-    1. Distância Euclidiana: assert(distance((0,0), (3,4)) == 5.0);
-    2. Interseção de Retas:
-       - Retas: y=x e y=-x+2 (Interseção esperada em (1,1)).
-       - Retas Paralelas: Verificar tratamento de erro/retorno especial.
-    3. Área de Polígono:
-       - Quadrado de lado 2 (Área esperada = 4).
-       - Triângulo retângulo base 3, alt 4 (Área esperada = 6).
 
 --------------------------------------------------------------------------------
 FASE 3: ALGORITMOS AVANÇADOS
 --------------------------------------------------------------------------------
-Objetivo: Implementar Convex Hull e Círculo Mínimo (Seções 3 e 4 do PDF).
-
-[ ] TAREFA 3.1: Fecho Convexo (Convex Hull)
-    - Criar `src/algorithms/convexhull.cpp`.
-    - Implementar algoritmo "Monotone Chain" ou "Graham Scan".
-    - Entrada: Lista de Vector2D. Saída: Objeto Polygon.
-
+[x] TAREFA 3.1: Fecho Convexo (Convex Hull)
+    [x] Graham Scan
+    [x] Monotone Chain
+    [x] Salvar resultado no banco
 [ ] TAREFA 3.2: Círculo Mínimo (Minimum Enclosing Circle)
-    - Criar `src/algorithms/mincircle.cpp`.
-    - Implementar "Algoritmo de Welzl".
-    - Entrada: Lista de Vector2D. Saída: Objeto Circumference.
-
-[ ] TAREFA 3.3: Integração no Menu
-    - Ativar Opções 3 e 4.
-    - Fluxo: Usuário insere N pontos -> Sistema calcula -> Mostra resultado numérico -> Pergunta se quer plotar.
-
->> PLANO DE TESTES (FASE 3) <<
-    1. Convex Hull (Quadrado): Pontos (0,0), (2,0), (2,2), (0,2) e (1,1) no meio.
-       - Resultado esperado: Polígono com 4 vértices (o (1,1) deve ser ignorado).
-    2. Convex Hull (Colinear): 3 pontos na mesma linha. Tratamento deve ser robusto.
-    3. Círculo Mínimo (Triângulo Equilátero): Verificar se o centro é o baricentro.
-    4. Círculo Mínimo (2 Pontos): Verificar se o diâmetro é a distância entre eles.
+    [ ] Algoritmo de Welzl
+    [ ] Integração no Menu
 
 --------------------------------------------------------------------------------
 FASE 4: VISUALIZAÇÃO E EXPORTAÇÃO (PYTHON)
 --------------------------------------------------------------------------------
-Objetivo: Refinar o plotter para suportar os novos algoritmos e exportação de arquivo.
-
 [x] TAREFA 4.1: Exportação de Imagem
-    - Expor função `save_figure(filename)` no menu C++.
-    - Garantir que o backend Python salve no diretório correto.
-
-[ ] TAREFA 4.2: Plotagem de Algoritmos
-    - Permitir sobreposição de plots: Plotar os pontos "input" em cinza e o
-      resultado (Convex Hull/Círculo) em destaque (vermelho/azul).
-
->> PLANO DE TESTES (FASE 4) <<
-    1. Teste de Arquivo: Gerar um plot, salvar como "teste.png", verificar se o arquivo existe no disco.
-    2. Teste Visual: Executar Convex Hull, solicitar plot e verificar visualmente se o polígono envolve todos os pontos.
+[x] TAREFA 4.2: Plotagem Avançada
+    [x] Plotar subconjuntos por ID ou Tipo
+    [ ] Plotagem diferenciada (destaque para algoritmos)
 
 --------------------------------------------------------------------------------
-CRONOGRAMA DE EXECUÇÃO SUGERIDO
+STATUS ATUAL
 --------------------------------------------------------------------------------
-[x] Semana 1: Fase 1 (Banco de Dados) - Crítico para o funcionamento geral.
-[x] Semana 2: Fase 2 (Calculadora) e Início da Fase 4 (Ajustes Plotter).
-[ ] Semana 3: Fase 3 (Algoritmos) - Parte matematicamente mais complexa.
-[ ] Semana 4: Testes de Integração finais e Documentação.
+Concluído: Fases 1, 2 e parte da 3 (Convex Hull).
+Próximo passo: Implementar Círculo Mínimo.

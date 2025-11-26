@@ -33,8 +33,6 @@ env/
 *.swp
 *~
 *.swo
-
-# --- OS Generated Files ---
 .DS_Store
 
 # --- Database ---

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cartesia"
-version = "0.1.0"
+version = "0.2.0" 
 description = "Ferramenta Híbrida C++/Python de Modelagem Geométrica"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -12,7 +12,7 @@ authors = [
   { name = "Luís Rafael Sena", email = "luisrafaelsna@gmail.com" },
   { name = "Pedro Videira Rubinstein" }
 ]
-# AQUI ESTÁ O SEGREDO: Listar as dependências reais
+
 dependencies = [
     "matplotlib",
     "PyQt5",
@@ -22,7 +22,6 @@ dependencies = [
 [project.urls]
 "Homepage" = "https://github.com/PedroRubinstein/LingProg"
 
-# Configuração para encontrar seus scripts Python
 [tool.setuptools.packages.find]
-where = ["."]  # Procura pacotes na raiz (vai encontrar a pasta 'scripts')
+where = ["."]
 include = ["scripts*"]

@@ -14,8 +14,6 @@ using namespace std;
 
 Menu::Menu() {
     registerCalculatorOperations();
-    
-    // AUTO-LOAD: Carrega automaticamente ao iniciar
     loadObjects();
 }
 
@@ -46,11 +44,11 @@ void Menu::registerCalculatorOperations() {
         "Localização de Ponto (Esq/Dir/Toque)",
         [this]() {
             cout << ">> Defina a Reta de referência:" << endl;
-            geometricObject* l = getObjectFromUser(2); // Line
+            geometricObject* l = getObjectFromUser(2);
             if (!l) return;
 
             cout << ">> Defina o Ponto de teste:" << endl;
-            geometricObject* p = getObjectFromUser(1); // Point
+            geometricObject* p = getObjectFromUser(1);
             if (!p) { if(l->getId()==-1) delete l; return; }
 
             string res = Calculator::pointLocationTest(*dynamic_cast<Line*>(l), *dynamic_cast<Vector2D*>(p));
@@ -74,7 +72,6 @@ void Menu::registerCalculatorOperations() {
             if(!s2) { if(s1->getId()==-1) delete s1; return; }
 
             bool res = Calculator::checkIntersection(*dynamic_cast<Line*>(s1), *dynamic_cast<Line*>(s2));
-            // TYPO FIXED: INTERSECTAM -> INTERCEPTAM
             cout << "\n>> Resultado: " << (res ? "INTERCEPTAM" : "NÃO INTERCEPTAM") << endl;
 
             if(s1->getId() == -1) delete s1;
@@ -86,6 +83,9 @@ void Menu::registerCalculatorOperations() {
     calculatorOperations.push_back({
         "Área de Polígono",
         [this]() {
+            // --- NEW WARNING ---
+            cout << "\n[!] Aviso: O polígono não deve se auto-intersectar para o cálculo correto." << endl;
+            
             cout << ">> Defina o Polígono:" << endl;
             geometricObject* poly = getObjectFromUser(3);
             if(!poly) return;
@@ -144,6 +144,7 @@ void Menu::manageObjects() {
     cout << "2 - Remover objeto" << endl;
     cout << "3 - Listar objetos (Memória)" << endl;
     cout << "4 - Recarregar do Banco de Dados (Revert Changes)" << endl;
+    cout << "5 - Limpar Banco de Dados (RESET)" << endl;
     cout << "0 - Voltar ao menu principal" << endl;
 
     int option = getNumericInput();
@@ -152,6 +153,18 @@ void Menu::manageObjects() {
         case 2: removeObject(); break;
         case 3: listObjects(); break;
         case 4: loadObjects(); break;
+        case 5: {
+            cout << "Tem certeza que deseja apagar TUDO? (1-Sim / 0-Não): ";
+            int confirm = getNumericInput();
+            if (confirm == 1) {
+                if (DatabaseManager::getInstance().clear_database()) {
+                    for (auto obj : geometricObjects) delete obj;
+                    geometricObjects.clear();
+                    cout << ">> Banco de dados e memória resetados com sucesso." << endl;
+                }
+            }
+            break;
+        }
         case 0: break;
         default: cout << endl << "Opção inválida." << endl; break;
     }
@@ -165,7 +178,6 @@ void Menu::addObject(geometricObject *obj) {
             cout << "Resultado salvo no banco com ID: " << id << endl;
         } else {
             cout << "Erro ao salvar no banco." << endl;
-            // FIX: Prevent Memory Leak
             delete obj;
         }
         return;
@@ -215,6 +227,10 @@ void Menu::addObject(geometricObject *obj) {
 }
 
 void Menu::removeObject() {
+    cout << "\n--- Objetos Disponíveis ---" << endl;
+    listObjects();
+    cout << "---------------------------" << endl;
+
     cout << "ID a remover: ";
     int id = getNumericInput();
     if (DatabaseManager::getInstance().delete_object(id)) {
@@ -253,8 +269,6 @@ void Menu::loadObjects() {
     cout << ">> [Auto-Load] " << ids.size() << " objetos carregados do banco de dados." << endl;
 }
 
-// --- Menu Calculadora ---
-
 geometricObject* Menu::getObjectFromUser(int type) {
     cout << "  1. Selecionar existente (ID)" << endl;
     cout << "  2. Criar novo temporário" << endl;
@@ -274,7 +288,6 @@ geometricObject* Menu::getObjectFromUser(int type) {
             if (type == 1 && dynamic_cast<Vector2D*>(obj)) isTypeMatch = true;
             else if (type == 2 && dynamic_cast<Line*>(obj)) isTypeMatch = true;
             else if (type == 3 && dynamic_cast<Polygon*>(obj)) isTypeMatch = true;
-            // Nota: Adicione Circunferência aqui se precisar futuramente
 
             if (isTypeMatch) {
                 cout << "   -> ID " << obj->getId() << ": " << obj->serialize() << endl;
@@ -284,7 +297,6 @@ geometricObject* Menu::getObjectFromUser(int type) {
 
         if (!foundAny) {
             cout << "  [!] Nenhum objeto desse tipo encontrado na memória." << endl;
-            cout << "  Dica: Crie um novo objeto temporário ou adicione um no menu principal." << endl;
             return nullptr;
         }
 
@@ -299,7 +311,7 @@ geometricObject* Menu::getObjectFromUser(int type) {
                 
                 if (ok) return obj;
                 else {
-                    cout << "Tipo incorreto selecionado (ID existe, mas não é do tipo pedido)." << endl;
+                    cout << "Tipo incorreto selecionado." << endl;
                     return nullptr;
                 }
             }
@@ -362,6 +374,6 @@ void Menu::managePlotter() {
     }
 }
 
-void Menu::askAddResult(geometricObject* result) { }
+void Menu::askAddResult(geometricObject*) { }
 
 int Menu::getMaxId() { return 0; }

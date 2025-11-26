@@ -19,16 +19,13 @@ public:
 
     // --- New Persistence Methods ---
     
-    // Saves an object and returns its new ID (or -1 on error)
     int insert_object(geometricObject* obj);
-
-    // Removes an object by ID
     bool delete_object(int id);
+    
+    // NEW: Clears all data from the database
+    bool clear_database();
 
-    // Loads an object by ID (Factory Method: parses JSON to create the C++ object)
     geometricObject* get_object_by_id(int id);
-
-    // Helper to list IDs for the menu
     std::vector<int> get_all_ids();
 
     ~DatabaseManager();

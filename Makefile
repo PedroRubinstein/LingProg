@@ -20,14 +20,17 @@ PYTHON_LIB_PATH := $(shell python3-config --prefix)/lib
 # Compilador
 CXX := g++
 
+# FIXED: Added -flto=auto here
 CXXFLAGS := -Wall -Wextra -std=c++17 -MMD -MP \
             -I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/geometricObjects \
-            $(PYTHON_CFLAGS)
+            $(PYTHON_CFLAGS) -flto=auto
 
 # Flags do Linker (Onde procurar bibliotecas)
-LDFLAGS := $(PYTHON_LDFLAGS) -Wl,-rpath,$(PYTHON_LIB_PATH)
+# FIXED: Added -flto=auto here as well
+LDFLAGS := $(PYTHON_LDFLAGS) -Wl,-rpath,$(PYTHON_LIB_PATH) -flto=auto
 
-# Bibliotecas Específicas (SQLite deve vir aqui!)
+# Bibliotecas 
+# Específicas (SQLite deve vir aqui!)
 LDLIBS := -lsqlite3
 
 # --- Regras ---

@@ -18,14 +18,8 @@ public:
     static double polygonArea(const Polygon& poly);
 
 private:
-    // Helper: Cross product of vectors (b-a) and (c-a)
-    static long double crossProduct(const Vector2D& a, const Vector2D& b, const Vector2D& c);
-    
-    // Helper: Checks if point p is on segment seg (assuming collinearity is verified)
-    static bool onSegment(const Vector2D& p, const Line& seg);
-
-    // Helper: Returns true if the turn a->b->c is strictly counter-clockwise
-    static bool ccw(const Vector2D& a, const Vector2D& b, const Vector2D& c);
+    // REMOVED: Private helpers crossProduct, onSegment, ccw 
+    // Now using Vector2D::static_methods
 };
 
 #endif

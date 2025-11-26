@@ -20,13 +20,13 @@ PYTHON_LIB_PATH := $(shell python3-config --prefix)/lib
 # Compilador
 CXX := g++
 
-# FIXED: Added -flto=auto here
+# UPDATED: Added -I$(INCLUDE_DIR)/algorithms
 CXXFLAGS := -Wall -Wextra -std=c++17 -MMD -MP \
             -I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/geometricObjects \
+            -I$(INCLUDE_DIR)/algorithms \
             $(PYTHON_CFLAGS) -flto=auto
 
 # Flags do Linker (Onde procurar bibliotecas)
-# FIXED: Added -flto=auto here as well
 LDFLAGS := $(PYTHON_LDFLAGS) -Wl,-rpath,$(PYTHON_LIB_PATH) -flto=auto
 
 # Bibliotecas 
@@ -39,7 +39,7 @@ LDLIBS := -lsqlite3
 
 all: $(BIN_DIR)/$(TARGET_EXEC)
 
-# Regra de Linkagem: Observe que $(LDLIBS) está no FINAL
+# Regra de Linkagem
 $(BIN_DIR)/$(TARGET_EXEC): $(OBJS)
 	@mkdir -p $(BIN_DIR)
 	@echo "Linking $(TARGET_EXEC)..."

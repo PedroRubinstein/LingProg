@@ -7,8 +7,6 @@
 #include <string>
 #include "geometricobject.h"
 
-// REMOVED: using namespace std; (Bad Practice in headers)
-
 typedef long double ld;
 
 class Vector2D : public geometricObject {
@@ -23,10 +21,24 @@ public:
 
     geometricObject::Type type() const override;
 
+    // --- Static Geometric Helpers (Refactored) ---
+    // Returns the cross product (z-component) of vectors (b-a) and (c-a)
+    static ld crossProduct(const Vector2D& a, const Vector2D& b, const Vector2D& c);
+    
+    // Returns squared Euclidean distance between a and b
+    static ld distSq(const Vector2D& a, const Vector2D& b);
+    
+    // Returns true if a->b->c is a strictly Counter-Clockwise turn
+    static bool ccw(const Vector2D& a, const Vector2D& b, const Vector2D& c);
+    
+    // Checks if point p lies on the segment defined by endpoints a and b
+    static bool onSegment(const Vector2D& p, const Vector2D& a, const Vector2D& b);
+    // ---------------------------------------------
+
     Vector2D operator+(const Vector2D& other) const;
     Vector2D operator-(const Vector2D& other) const;
-    ld operator*(const Vector2D& other) const;
-    ld operator^(const Vector2D& other) const;
+    ld operator*(const Vector2D& other) const; // Dot Product
+    ld operator^(const Vector2D& other) const; // Cross Product (2D)
     Vector2D& operator+=(const Vector2D& other);
     Vector2D& operator-=(const Vector2D& other);
 
@@ -64,7 +76,6 @@ public:
         return *this;
     }
 
-    // Added std:: qualifier
     friend std::ostream& operator<<(std::ostream &out, const Vector2D &vector);
 
     std::string serialize() const override;

@@ -1,9 +1,11 @@
 #include "menu.h"
 #include "database.h"
+#include "algorithms/convexhull.h"
 #include <iostream>
 #include <limits>
 #include <vector>
 #include <string>
+#include <sstream>
 
 #include "geometricObjects/vector2d.h"
 #include "geometricObjects/line.h"
@@ -39,7 +41,6 @@ int Menu::getNumericInput() {
 }
 
 void Menu::registerCalculatorOperations() {
-    // 1. Point Location
     calculatorOperations.push_back({
         "Localização de Ponto (Esq/Dir/Toque)",
         [this]() {
@@ -59,7 +60,6 @@ void Menu::registerCalculatorOperations() {
         }
     });
 
-    // 2. Intersection
     calculatorOperations.push_back({
         "Interseção de Segmentos",
         [this]() {
@@ -79,13 +79,10 @@ void Menu::registerCalculatorOperations() {
         }
     });
 
-    // 3. Polygon Area
     calculatorOperations.push_back({
         "Área de Polígono",
         [this]() {
-            // --- NEW WARNING ---
             cout << "\n[!] Aviso: O polígono não deve se auto-intersectar para o cálculo correto." << endl;
-            
             cout << ">> Defina o Polígono:" << endl;
             geometricObject* poly = getObjectFromUser(3);
             if(!poly) return;
@@ -109,7 +106,7 @@ void Menu::showMenu() {
         cout << "\n===== Menu Principal =====" << endl;
         cout << "1 - Gerenciamento de Objetos Geométricos (SQL)" << endl;
         cout << "2 - Calculadora Geométrica" << endl;
-        cout << "3 - Polígono Convexo (Não implementado)" << endl;
+        cout << "3 - Fecho Convexo (Convex Hull)" << endl;
         cout << "4 - Círculo Mínimo (Não implementado)" << endl;
         cout << "5 - Visualização (Plotter)" << endl;
         cout << "0 - Sair" << endl;
@@ -360,16 +357,133 @@ void Menu::manageCalculator() {
     }
 }
 
-void Menu::manageConvexHull() { cout << "Em breve..." << endl; }
+void Menu::manageConvexHull() {
+    cout << "\n=== Fecho Convexo (Convex Hull) ===" << endl;
+    cout << "O algoritmo utiliza um conjunto de pontos para gerar o polígono envolvente." << endl;
+    
+    cout << ">> Selecione o Polígono (ou Nuvem de Pontos) de entrada:" << endl;
+    geometricObject* inputObj = getObjectFromUser(3); 
+    if (!inputObj) return;
+
+    Polygon* inputPoly = dynamic_cast<Polygon*>(inputObj);
+    const vector<Vector2D>& points = inputPoly->getVertices();
+
+    if (points.size() < 3) {
+        cout << "Erro: Necessário pelo menos 3 pontos." << endl;
+        if(inputObj->getId() == -1) delete inputObj;
+        return;
+    }
+
+    cout << "\nEscolha o Algoritmo:" << endl;
+    cout << "1 - Graham Scan" << endl;
+    cout << "2 - Monotone Chain (Andrew's)" << endl;
+    int algo = getNumericInput();
+
+    Polygon resultHull;
+    if (algo == 1) {
+        resultHull = ConvexHull::grahamScan(points);
+    } else if (algo == 2) {
+        resultHull = ConvexHull::monotoneChain(points);
+    } else {
+        cout << "Opção inválida." << endl;
+        if(inputObj->getId() == -1) delete inputObj;
+        return;
+    }
+
+    cout << "\n>> Resultado: Polígono com " << resultHull.getVertices().size() << " vértices." << endl;
+    cout << resultHull << endl;
+
+    cout << "\nDeseja salvar o resultado no banco? (1-Sim / 0-Não): ";
+    if (getNumericInput() == 1) {
+        Polygon* toSave = new Polygon(resultHull.getVertices());
+        addObject(toSave);
+    }
+
+    if(inputObj->getId() == -1) delete inputObj;
+}
+
 void Menu::manageMinCircle() { cout << "Em breve..." << endl; }
 
 void Menu::managePlotter() {
-    cout << "1 - Gerar visualização" << endl;
-    cout << "2 - Salvar último plot" << endl;
+    cout << "\n=== Visualização (Plotter) ===" << endl;
+    cout << "1 - Plotar TUDO" << endl;
+    cout << "2 - Plotar Subconjunto por IDs" << endl;
+    cout << "3 - Plotar Subconjunto por Tipo" << endl;
+    cout << "4 - Salvar último plot" << endl;
+    cout << "0 - Voltar" << endl;
+
+    cout << "Opção: ";
     int opt = getNumericInput();
-    if(opt == 1) plotter.plot(geometricObjects);
-    else if(opt == 2) {
-        string f; cout << "Filename: "; getline(cin, f);
+
+    if (opt == 1) {
+        if (geometricObjects.empty()) {
+            cout << "Nenhum objeto para plotar." << endl;
+        } else {
+            plotter.plot(geometricObjects);
+        }
+    } 
+    else if (opt == 2) {
+        // --- ADDED: List objects before asking for IDs ---
+        cout << "\n--- Objetos Disponíveis ---" << endl;
+        listObjects();
+        cout << "---------------------------" << endl;
+
+        cout << "Digite os IDs separados por espaço (ex: 1 2 5): ";
+        string line;
+        std::getline(cin, line);
+        
+        stringstream ss(line);
+        int id;
+        vector<int> targetIds;
+        while(ss >> id) {
+            targetIds.push_back(id);
+        }
+
+        vector<geometricObject*> subset;
+        for (auto* obj : geometricObjects) {
+            for (int t : targetIds) {
+                if (obj->getId() == t) {
+                    subset.push_back(obj);
+                    break; 
+                }
+            }
+        }
+
+        if (subset.empty()) {
+            cout << "Nenhum objeto com os IDs fornecidos foi encontrado." << endl;
+        } else {
+            cout << "Plotando " << subset.size() << " objetos..." << endl;
+            plotter.plot(subset);
+        }
+    } 
+    else if (opt == 3) {
+        cout << "Escolha o tipo: " << endl;
+        cout << "1 - Vetor/Ponto\n2 - Reta\n3 - Polígono\n4 - Circunferência" << endl;
+        int type = getNumericInput();
+
+        vector<geometricObject*> subset;
+        for (auto* obj : geometricObjects) {
+            bool match = false;
+            if (type == 1 && dynamic_cast<Vector2D*>(obj)) match = true;
+            else if (type == 2 && dynamic_cast<Line*>(obj)) match = true;
+            else if (type == 3 && dynamic_cast<Polygon*>(obj)) match = true;
+            else if (type == 4 && dynamic_cast<Circumference*>(obj)) match = true;
+
+            if (match) subset.push_back(obj);
+        }
+
+        if (subset.empty()) {
+            cout << "Nenhum objeto desse tipo encontrado." << endl;
+        } else {
+            cout << "Plotando " << subset.size() << " objetos..." << endl;
+            plotter.plot(subset);
+        }
+    } 
+    else if (opt == 4) {
+        string f; 
+        cout << "Nome do arquivo (ex: plot.png): "; 
+        std::getline(cin, f);
+        if (f.empty()) f = "plot.png";
         plotter.saveFigure(f);
     }
 }

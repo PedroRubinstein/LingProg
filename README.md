@@ -1,6 +1,6 @@
 # Cartesia
 
-**Cartesia** é uma ferramenta de geometria computacional híbrida (C++/Python).O projeto visa aplicar conhecimentos de álgebra linear, algoritmos e estruturas de dados para realizar tarefas geométricas complexas, como o cálculo de Fecho Convexo (Convex Hull) e Círculo Mínimo, além de oferecer visualização gráfica integrada.
+**Cartesia** é uma ferramenta de geometria computacional híbrida (C++/Python). O projeto visa aplicar conhecimentos de álgebra linear, algoritmos e estruturas de dados para realizar tarefas geométricas complexas, como o cálculo de Fecho Convexo (Convex Hull) e Círculo Mínimo, além de oferecer visualização gráfica integrada.
 
 O sistema utiliza **C++** para o gerenciamento de objetos e cálculos matemáticos, **SQL** (SQLite) para persistência de dados e **Python** (Matplotlib) para renderização gráfica.
 
@@ -15,35 +15,35 @@ O sistema utiliza **C++** para o gerenciamento de objetos e cálculos matemátic
 
 ## Pré-requisitos
 
-Para compilar e executar o Cartesia, você precisa de um ambiente Linux com compilador C++17, Python 3.9+ e bibliotecas de desenvolvimento do SQLite.
+Para compilar e executar o Cartesia, você precisa de um ambiente Linux com compilador C++17, Python 3.9+ e bibliotecas de desenvolvimento do SQLite. As bibliotecas Python serão instaladas via `pip`.
 
 ### Arch Linux
 ```bash
-sudo pacman -S gcc python python-matplotlib python-pyqt5 sqlite base-devel
+sudo pacman -S gcc python sqlite base-devel
 ```
 
 ### Ubuntu / Debian
 ```bash
 sudo apt-get update
-sudo apt-get install g++ python3-dev python3-matplotlib python3-pyqt5 libsqlite3-dev build-essential
+sudo apt-get install g++ python3-dev libsqlite3-dev build-essential
 ```
 
 ## Instalação
 
-O projeto utiliza um `Makefile` automatizado que gerencia tanto as dependências do Python quanto a compilação do C++.
+O projeto utiliza `pyproject.toml` para gerenciamento de dependências Python e um `Makefile` para a compilação do C++.
 
-1.  **Instalação Completa:**
-    Execute o comando abaixo para instalar as dependências Python (em modo editável) e compilar o binário C++.
+1.  **Instalar Dependências Python:**
+    Execute o comando abaixo na raiz do projeto para instalar as bibliotecas necessárias (Matplotlib, PyQt5, etc):
 ```bash
-make install
+pip install .
 ```
 
-2.  **Apenas Compilar (se já instalado):**
+2.  **Compilar o Projeto C++:**
 ```bash
 make
 ```
 
-3.  **Limpar Arquivos de Build:**
+3.  **Limpar Arquivos de Build (Opcional):**
 ```bash
 make clean
 ```
@@ -72,7 +72,7 @@ Após a compilação, o executável é gerado no diretório `bin/`.
 
 ## Estrutura do Projeto
 
-O projeto foi refatorado para seguir padrões profissionais de C++:
+O projeto foi refatorado para seguir padrões profissionais de C++ e empacotamento Python:
 
 ```text
 Cartesia/
@@ -87,8 +87,9 @@ Cartesia/
 │   ├── menu.cpp          # Lógica de interface CLI
 │   └── geometricObjects/ # Lógica das formas geométricas
 ├── scripts/              # Scripts Python (plotter.py)
-├── Makefile              # Automação de build (C++ e Python)
+├── Makefile              # Automação de build (C++)
 ├── pyproject.toml        # Configuração de dependências Python
+├── MANIFEST.in           # Regras de inclusão de arquivos para distribuição
 └── README.md             # Documentação
 ```
 

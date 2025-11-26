@@ -20,7 +20,7 @@ de dados local, conforme especificado na seção "Funções externas em SQL".
     - Criar método `init()` para gerar tabelas se não existirem (Tabela: objects).
       Schema sugerido: id (PK), type (INT), data (JSON), created_at (TIMESTAMP).
 
-[ ] TAREFA 1.2: Serialização na Classe Abstrata
+[x] TAREFA 1.2: Serialização na Classe Abstrata
     - Adicionar método virtual puro em `geometricObject`:
       virtual std::string serialize() const = 0;
     - Implementar `serialize()` em:
@@ -29,20 +29,20 @@ de dados local, conforme especificado na seção "Funções externas em SQL".
       - Polygon: retornar "x1,y1;x2,y2;...;xn,yn"
       - Circumference: retornar "cx,cy;r"
 
-[ ] TAREFA 1.3: Implementação dos Métodos de Banco (DatabaseManager)
+[x] TAREFA 1.3: Implementação dos Métodos de Banco (DatabaseManager)
     - int insert_object(geometricObject* obj);
-    - std::vector<int> get_ids_by_type(int type);
     - geometricObject* get_object_by_id(int id);  <-- Factory method (parse string)
     - bool delete_object(int id);
 
-[ ] TAREFA 1.4: Integração com Menu
+[x] TAREFA 1.4: Integração com Menu
     - Atualizar Opção 1 (Gerenciamento) para usar `DatabaseManager` em vez de
       apenas vetor em memória.
 
 >> PLANO DE TESTES (FASE 1) <<
     1. Teste de Conexão: Verificar se o arquivo .db é criado ao iniciar.
     2. Teste de Inserção: Inserir um Ponto (10, 20) e verificar se retorna ID > 0.
-    3. Teste de Persistência: Fechar o programa, reabrir e listar objetos. O ponto deve estar lá.
+    3. Teste de Persistência: Fechar o programa, reabrir e listar objetos.
+       O ponto deve estar lá.
     4. Teste de Recuperação: Buscar o objeto pelo ID retornado e confirmar se X=10 e Y=20.
     5. Teste de Remoção: Deletar o ID, tentar buscar novamente e esperar retorno nulo/erro.
 
@@ -51,14 +51,15 @@ FASE 2: CALCULADORA GEOMÉTRICA
 --------------------------------------------------------------------------------
 Objetivo: Implementar operações matemáticas entre formas, conforme seção 2 do PDF.
 
-[ ] TAREFA 2.1: Implementação Core (src/calculator.cpp)
+[x] TAREFA 2.1: Implementação Core (src/calculator.cpp)
     - Implementar métodos estáticos:
       - double distance(Vector2D a, Vector2D b);
       - Vector2D intersection(Line r, Line s);
-      - double polygonArea(Polygon p); (Algoritmo Shoelace)
+      - double polygonArea(Polygon p);
+        (Algoritmo Shoelace)
       - double dotProduct(Vector2D a, Vector2D b);
 
-[ ] TAREFA 2.2: Interface do Menu
+[x] TAREFA 2.2: Interface do Menu
     - Reativar Opção 2 do Menu.
     - Criar sub-menu para selecionar operação.
     - Permitir selecionar objetos existentes pelo ID (usando `get_object_by_id`).
@@ -103,7 +104,7 @@ FASE 4: VISUALIZAÇÃO E EXPORTAÇÃO (PYTHON)
 --------------------------------------------------------------------------------
 Objetivo: Refinar o plotter para suportar os novos algoritmos e exportação de arquivo.
 
-[ ] TAREFA 4.1: Exportação de Imagem
+[x] TAREFA 4.1: Exportação de Imagem
     - Expor função `save_figure(filename)` no menu C++.
     - Garantir que o backend Python salve no diretório correto.
 
@@ -118,11 +119,7 @@ Objetivo: Refinar o plotter para suportar os novos algoritmos e exportação de 
 --------------------------------------------------------------------------------
 CRONOGRAMA DE EXECUÇÃO SUGERIDO
 --------------------------------------------------------------------------------
-Semana 1: Fase 1 (Banco de Dados) - Crítico para o funcionamento geral.
-Semana 2: Fase 2 (Calculadora) e Início da Fase 4 (Ajustes Plotter).
-Semana 3: Fase 3 (Algoritmos) - Parte matematicamente mais complexa.
-Semana 4: Testes de Integração finais e Documentação.
-
-TODOS:
-
-Pedro, adiciona o seu nome no pyproject.toml e verifica se eu coloquei tudo certo seu no README.md
+[x] Semana 1: Fase 1 (Banco de Dados) - Crítico para o funcionamento geral.
+[x] Semana 2: Fase 2 (Calculadora) e Início da Fase 4 (Ajustes Plotter).
+[ ] Semana 3: Fase 3 (Algoritmos) - Parte matematicamente mais complexa.
+[ ] Semana 4: Testes de Integração finais e Documentação.

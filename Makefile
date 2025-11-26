@@ -20,7 +20,6 @@ PYTHON_LIB_PATH := $(shell python3-config --prefix)/lib
 # Compilador
 CXX := g++
 
-# Makefile snippet (Existing)
 CXXFLAGS := -Wall -Wextra -std=c++17 -MMD -MP \
             -I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/geometricObjects \
             $(PYTHON_CFLAGS)
@@ -33,7 +32,7 @@ LDLIBS := -lsqlite3
 
 # --- Regras ---
 
-.PHONY: all clean run debug install
+.PHONY: all clean run debug
 
 all: $(BIN_DIR)/$(TARGET_EXEC)
 
@@ -49,14 +48,6 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
 	@echo "Compiling $<..."
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
-
-# Regra de Instalação (Usa python3 -m pip para evitar erro de PATH)
-install:
-	@echo "Instalando dependências Python..."
-	@python3 -m pip install -e .
-	@echo "Compilando Cartesia..."
-	@$(MAKE) all
-	@echo "Instalação concluída! Execute com: make run"
 
 run: $(BIN_DIR)/$(TARGET_EXEC)
 	@echo "Running Application..."

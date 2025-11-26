@@ -20,7 +20,7 @@ PYTHON_LIB_PATH := $(shell python3-config --prefix)/lib
 # Compilador
 CXX := g++
 
-# Flags de Compilação (Includes + C++17 + Python Headers)
+# Makefile snippet (Existing)
 CXXFLAGS := -Wall -Wextra -std=c++17 -MMD -MP \
             -I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/geometricObjects \
             $(PYTHON_CFLAGS)

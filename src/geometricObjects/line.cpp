@@ -1,5 +1,9 @@
 #include <iostream> 
+#include <nlohmann/json.hpp>
+
 #include "line.h"
+
+using json = nlohmann::json;
 
 Line::Line() : m_p1(0.0, 0.0), m_p2(1.0, 0.0) {}
 
@@ -20,6 +24,12 @@ std::ostream& operator<<(std::ostream& out, const Line& l) {
 }
 
 std::string Line::serialize() const {
-    // Format: {"p1": {...}, "p2": {...}}
-    return "{\"p1\": " + m_p1.serialize() + ", \"p2\": " + m_p2.serialize() + "}";
+    json j;
+    
+    // We can construct the nested objects manually
+    j["p1"] = { {"x", m_p1.getX()}, {"y", m_p1.getY()} };
+    j["p2"] = { {"x", m_p2.getX()}, {"y", m_p2.getY()} };
+
+    return j.dump();
 }
+

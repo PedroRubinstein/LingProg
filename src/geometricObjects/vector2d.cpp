@@ -2,8 +2,11 @@
 #include <cmath>    
 #include <stdexcept>
 #include <string>
+#include <nlohmann/json.hpp>
+
 #include "vector2d.h"
 
+using json = nlohmann::json;
 using namespace std;
 typedef long double ld;
 
@@ -57,6 +60,13 @@ ld abs(Vector2D& vec) {
 }
 
 std::string Vector2D::serialize() const {
-    // Format: {"x": 10.5, "y": -5.2}
-    return "{\"x\": " + std::to_string(m_x) + ", \"y\": " + std::to_string(m_y) + "}";
+    json j;
+    j["x"] = m_x;
+    j["y"] = m_y;
+
+    return j.dump();
+}
+
+void to_json(json& j, const Vector2D& v) {
+    j = json{{"x", v.getX()}, {"y", v.getY()}};
 }

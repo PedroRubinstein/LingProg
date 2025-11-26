@@ -1,20 +1,29 @@
 #include "menu.h"
+#include "database.h"
 #include <iostream>
 #include <limits>
 #include <vector>
 #include <string>
 
-#include "vector2d.h"
-#include "line.h"
-#include "polygon.h"
-#include "circumference.h"
+#include "geometricObjects/vector2d.h"
+#include "geometricObjects/line.h"
+#include "geometricObjects/polygon.h"
+#include "geometricObjects/circumference.h"
 
 using namespace std;
+
+Menu::Menu() {
+    registerCalculatorOperations();
+    
+    // AUTO-LOAD: Carrega automaticamente ao iniciar
+    loadObjects();
+}
 
 Menu::~Menu() {
     for (auto obj : geometricObjects) {
         delete obj;
     }
+    geometricObjects.clear();
 }
 
 int Menu::getNumericInput() {
@@ -26,10 +35,66 @@ int Menu::getNumericInput() {
             cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             continue;
         }
-
         cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         return input;
     }
+}
+
+void Menu::registerCalculatorOperations() {
+    // 1. Point Location
+    calculatorOperations.push_back({
+        "Localização de Ponto (Esq/Dir/Toque)",
+        [this]() {
+            cout << ">> Defina a Reta de referência:" << endl;
+            geometricObject* l = getObjectFromUser(2); // Line
+            if (!l) return;
+
+            cout << ">> Defina o Ponto de teste:" << endl;
+            geometricObject* p = getObjectFromUser(1); // Point
+            if (!p) { if(l->getId()==-1) delete l; return; }
+
+            string res = Calculator::pointLocationTest(*dynamic_cast<Line*>(l), *dynamic_cast<Vector2D*>(p));
+            cout << "\n>> Resultado: " << res << endl;
+
+            if(l->getId() == -1) delete l;
+            if(p->getId() == -1) delete p;
+        }
+    });
+
+    // 2. Intersection
+    calculatorOperations.push_back({
+        "Interseção de Segmentos",
+        [this]() {
+            cout << ">> Defina o Segmento 1:" << endl;
+            geometricObject* s1 = getObjectFromUser(2);
+            if(!s1) return;
+
+            cout << ">> Defina o Segmento 2:" << endl;
+            geometricObject* s2 = getObjectFromUser(2);
+            if(!s2) { if(s1->getId()==-1) delete s1; return; }
+
+            bool res = Calculator::checkIntersection(*dynamic_cast<Line*>(s1), *dynamic_cast<Line*>(s2));
+            cout << "\n>> Resultado: " << (res ? "INTERSECTAM" : "NÃO INTERSECTAM") << endl;
+
+            if(s1->getId() == -1) delete s1;
+            if(s2->getId() == -1) delete s2;
+        }
+    });
+
+    // 3. Polygon Area
+    calculatorOperations.push_back({
+        "Área de Polígono",
+        [this]() {
+            cout << ">> Defina o Polígono:" << endl;
+            geometricObject* poly = getObjectFromUser(3);
+            if(!poly) return;
+
+            double area = Calculator::polygonArea(*dynamic_cast<Polygon*>(poly));
+            cout << "\n>> Área: " << area << endl;
+
+            if(poly->getId() == -1) delete poly;
+        }
+    });
 }
 
 void Menu::pauseForEnter() {
@@ -41,7 +106,7 @@ void Menu::pauseForEnter() {
 void Menu::showMenu() {
     while (true) {
         cout << "\n===== Menu Principal =====" << endl;
-        cout << "1 - Gerenciamento de Objetos Geométricos" << endl;
+        cout << "1 - Gerenciamento de Objetos Geométricos (SQL)" << endl;
         cout << "2 - Calculadora Geométrica" << endl;
         cout << "3 - Polígono Convexo (Não implementado)" << endl;
         cout << "4 - Círculo Mínimo (Não implementado)" << endl;
@@ -63,266 +128,241 @@ void Menu::showMenu() {
 
 void Menu::processOption(int option) {
     switch (option) {
-        case 1:
-            cout << "\n[1] Gerenciamento de Objetos" << endl;
-            manageObjects();
-            break;
-        case 2:
-            cout << "\n[2] Calculadora Geométrica" << endl;
-            manageCalculator();
-            break;
-        case 3:
-            cout << "\n[3] Cálculo do Polígono Convexo" << endl;
-            manageConvexHull();
-            break;
-        case 4:
-            cout << "\n[4] Cálculo do Círculo Mínimo" << endl;
-            manageMinCircle();
-            break;
-        case 5:
-            cout << "\n[5] Visualização" << endl;
-            managePlotter();
-            break;
-        default:
-            cout << "\nOpção inválida. Escolha um número entre 0 e 5." << endl;
-            break;
+        case 1: manageObjects(); break;
+        case 2: manageCalculator(); break;
+        case 3: manageConvexHull(); break;
+        case 4: manageMinCircle(); break;
+        case 5: managePlotter(); break;
+        default: cout << "\nOpção inválida." << endl; break;
     }
 }
 
-// --- Métodos de Gerenciamento (para Escalabilidade) ---
-
 void Menu::manageObjects() {
-    cout << endl << "Selecione uma subopção:" << endl;
+    cout << "\n=== Gerenciamento de Objetos (SQL) ===" << endl;
     cout << "1 - Adicionar objeto" << endl;
     cout << "2 - Remover objeto" << endl;
-    cout << "3 - Listar objetos" << endl;
-    cout << "4 - Salvar objetos (Não implementado)" << endl;
-    cout << "5 - Carregar objetos (Não implementado)" << endl;
+    cout << "3 - Listar objetos (Memória)" << endl;
+    cout << "4 - Recarregar do Banco de Dados (Revert Changes)" << endl;
     cout << "0 - Voltar ao menu principal" << endl;
 
     int option = getNumericInput();
     switch (option) {
-        case 1:
-            addObject();
-            break;
-        case 2:
-            removeObject();
-            break;
-        case 3:
-            listObjects();
-            break;
-        case 4:
-            saveObjects();
-            break;
-        case 5:
-            loadObjects();
-            break;
-        case 0:
-            break;
-        default:
-            cout << endl << "Opção inválida." << endl;
-            break;
+        case 1: addObject(); break;
+        case 2: removeObject(); break;
+        case 3: listObjects(); break;
+        case 4: loadObjects(); break;
+        case 0: break;
+        default: cout << endl << "Opção inválida." << endl; break;
     }
 }
-
-void Menu::manageCalculator() {
-    cout << "A funcionalidade da Calculadora Geométrica está temporariamente desativada." << endl;
-}
-
-void Menu::manageConvexHull() {
-    cout << "Funcionalidade de Polígono Convexo ainda não implementada." << endl;
-}
-
-void Menu::manageMinCircle() {
-    cout << "Funcionalidade de Círculo Mínimo ainda não implementada." << endl;
-}
-
-void Menu::managePlotter() {
-    cout << "1 - Gerar visualização dos objetos geométricos armazenados" << endl;
-    cout << "2 - Salvar último plot gerado em arquivo" << endl;
-    cout << "0 - Voltar" << endl;
-
-    int option = getNumericInput();
-    switch (option) {
-        case 1:
-            cout << "Gerando plot..." << endl;
-            plotter.plot(geometricObjects);
-            cout << "Plot gerado. (Pode ter aberto numa janela separada ou salvo em 'plot.png')." << endl;
-            break;
-        case 2: {
-            cout << "Digite o nome do arquivo para salvar o plot (ex: 'figura.png'): ";
-            string filename;
-            std::getline(cin, filename);
-            if (plotter.saveFigure(filename)) {
-                cout << "Figura salva com sucesso em " << filename << endl;
-            } else {
-                cout << "Erro ao salvar figura. Talvez nenhum plot tenha sido gerado ainda." << endl;
-            }
-            break;
-        }
-        case 0:
-            break;
-        default:
-            cout << "Opção inválida." << endl;
-            break;
-    }
-}
-
-// --- Sub-métodos de 'manageObjects' ---
 
 void Menu::addObject(geometricObject *obj) {
-    static int objectCounter = 0 + getMaxId();
-
     if (obj) {
-        obj->setId(objectCounter++);
-        geometricObjects.push_back(obj);
+        int id = DatabaseManager::getInstance().insert_object(obj);
+        if (id != -1) {
+            geometricObjects.push_back(obj);
+            cout << "Resultado salvo no banco com ID: " << id << endl;
+        } else {
+            cout << "Erro ao salvar no banco." << endl;
+        }
         return;
     }
 
-    cout << "Selecione o tipo de objeto a adicionar:" << endl;
-    cout << "1 - Vetor (ou Ponto/Vetor de Posição)" << endl;
-    cout << "2 - Reta (Segmento)" << endl;
-    cout << "3 - Polígono" << endl;
-    cout << "4 - Circunferência" << endl;
-    cout << "0 - Voltar" << endl;
+    cout << "Selecione o tipo:" << endl;
+    cout << "1 - Vetor/Ponto\n2 - Reta\n3 - Polígono\n4 - Circunferência\n0 - Cancelar" << endl;
+    int type = getNumericInput();
+    if (type == 0) return;
+    
+    geometricObject* created = nullptr;
+    if (type == 1) {
+        double x, y; cout << "X Y: "; cin >> x >> y;
+        created = new Vector2D(x, y);
+    } else if (type == 2) {
+        double x1, y1, x2, y2;
+        cout << "P1(x y): "; cin >> x1 >> y1;
+        cout << "P2(x y): "; cin >> x2 >> y2;
+        created = new Line(Vector2D(x1, y1), Vector2D(x2, y2));
+    } else if (type == 3) {
+        int n; cout << "Num vértices: "; cin >> n;
+        vector<Vector2D> verts;
+        for(int i=0; i<n; i++) {
+            double x, y; cout << "V" << i+1 << ": "; cin >> x >> y;
+            verts.emplace_back(x, y);
+        }
+        created = new Polygon(verts);
+    } else if (type == 4) {
+        double x, y, r; 
+        cout << "Centro(x y): "; cin >> x >> y;
+        cout << "Raio: "; cin >> r;
+        created = new Circumference(Vector2D(x, y), r);
+    }
 
-    int objectType = getNumericInput();
-    switch (objectType) {
-        case 1: {
-            cout << "Adicionar Vetor/Ponto." << endl;
-            double x, y;
-            cout << "Digite a coordenada x: "; cin >> x;
-            cout << "Digite a coordenada y: "; cin >> y;
-            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
-            
-            geometricObjects.push_back(new Vector2D(x, y));
-            geometricObjects.back()->setId(objectCounter++);
-            cout << "Vetor/Ponto adicionado com sucesso." << endl;
-            break;
-        }
-        case 2: {
-            cout << "Adicionar Reta." << endl;
-            double x1, y1, x2, y2;
-            cout << "Ponto 1 (x y): "; cin >> x1 >> y1;
-            cout << "Ponto 2 (x y): "; cin >> x2 >> y2;
-            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
-            
-            geometricObjects.push_back(new Line(Vector2D(x1, y1), Vector2D(x2, y2)));
-            geometricObjects.back()->setId(objectCounter++);
-            cout << "Reta adicionada com sucesso." << endl;
-            break;
-        }
-        case 3: {
-            cout << "Adicionar Polígono." << endl;
-            int numVertices;
-            cout << "Digite o número de vértices: ";
-            numVertices = getNumericInput();
-            
-            std::vector<Vector2D> vertices;
-            for (int i = 0; i < numVertices; ++i) {
-                double x, y;
-                cout << "Vértice " << (i + 1) << " (x y): ";
-                cin >> x >> y;
-                vertices.emplace_back(x, y);
-            }
-            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-            geometricObjects.push_back(new Polygon(vertices));
-            geometricObjects.back()->setId(objectCounter++);
-            cout << "Polígono adicionado com sucesso." << endl;
-            break;
+    if (created) {
+        int id = DatabaseManager::getInstance().insert_object(created);
+        if (id != -1) {
+            geometricObjects.push_back(created);
+            cout << ">> Sucesso! Objeto salvo no DB com ID " << id << endl;
+        } else {
+            cout << ">> Erro ao salvar no DB." << endl;
+            delete created;
         }
-        case 4: {
-            cout << "Adicionar Circunferência." << endl;
-            double centerX, centerY, radius;
-            cout << "Centro (x y): "; cin >> centerX >> centerY;
-            cout << "Raio: "; cin >> radius;
-            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            
-            geometricObjects.push_back(new Circumference(Vector2D(centerX, centerY), radius));
-            geometricObjects.back()->setId(objectCounter++);
-            cout << "Circunferência adicionada com sucesso." << endl;
-            break;
-        }
-        case 0:
-            break;
-        default:
-            cout << "Tipo de objeto inválido." << endl;
-            break;
     }
 }
 
 void Menu::removeObject() {
-    cout << "Digite o ID do objeto a ser removido: ";
-    int idToRemove = getNumericInput();
-    for (auto it = geometricObjects.begin(); it != geometricObjects.end(); ++it)
-    {
-        if ((*it)->getId() == idToRemove) {
-            delete *it;
-            geometricObjects.erase(it);
-            cout << "Objeto com ID " << idToRemove << " removido com sucesso." << endl;
-            return;
+    cout << "ID a remover: ";
+    int id = getNumericInput();
+    if (DatabaseManager::getInstance().delete_object(id)) {
+        for (auto it = geometricObjects.begin(); it != geometricObjects.end(); ++it) {
+            if ((*it)->getId() == id) {
+                delete *it;
+                geometricObjects.erase(it);
+                break;
+            }
         }
+    } else {
+        cout << "Erro ao remover (ID não existe?)." << endl;
     }
-    cout << "Objeto com ID " << idToRemove << " não encontrado." << endl;
 }
 
-/**
- * @brief Lista objetos usando dynamic_cast e operator<<,
- * já que o método virtual print() foi removido.
- */
 void Menu::listObjects() {
     if (geometricObjects.empty()) {
-        cout << "Nenhum objeto geométrico armazenado." << endl;
+        cout << "Nenhum objeto em memória." << endl;
         return;
     }
-
-    cout << "Objetos geométricos armazenados:" << endl;
     for (const auto& obj : geometricObjects) {
-        cout << "ID: " << obj->getId() << " - ";
-        
-        // Polimorfismo com operator<< requer RTTI (dynamic_cast)
-        
-        if (auto v = dynamic_cast<Vector2D*>(obj)) {
-            cout << *v << endl;
-        } else if (auto l = dynamic_cast<Line*>(obj)) {
-            cout << *l << endl;
-        } else if (auto p = dynamic_cast<Polygon*>(obj)) {
-            cout << *p << endl;
-        } else if (auto c = dynamic_cast<Circumference*>(obj)) {
-            cout << *c << endl;
-        } else {
-            cout << "Objeto de tipo desconhecido." << endl;
-        }
+        cout << "ID " << obj->getId() << ": " << obj->serialize() << endl;
     }
-}
-
-void Menu::saveObjects() {
-    cout << "Funcionalidade de Salvar Objetos ainda não implementada." << endl;
 }
 
 void Menu::loadObjects() {
-    cout << "Funcionalidade de Carregar Objetos ainda não implementada." << endl;
+    for (auto obj : geometricObjects) delete obj;
+    geometricObjects.clear();
+    
+    auto& db = DatabaseManager::getInstance();
+    vector<int> ids = db.get_all_ids();
+    for(int id : ids) {
+        geometricObject* obj = db.get_object_by_id(id);
+        if(obj) geometricObjects.push_back(obj);
+    }
+    cout << ">> [Auto-Load] " << ids.size() << " objetos carregados do banco de dados." << endl;
 }
 
-// --- Métodos de Ajuda ---
+// --- Menu Calculadora ---
 
-void Menu::askAddResult(geometricObject* result) {
-    if (!result) return;
+geometricObject* Menu::getObjectFromUser(int type) {
+    cout << "  1. Selecionar existente (ID)" << endl;
+    cout << "  2. Criar novo temporário" << endl;
+    cout << "  Opção: ";
+    int opt = getNumericInput();
+
+    if (opt == 1) {
+        if (geometricObjects.empty()) {
+            cout << "Nenhum objeto disponível." << endl;
+            return nullptr;
+        }
+
+        // --- FEATURE: LISTAR APENAS IDs VÁLIDOS ---
+        cout << "\n  [Objetos disponíveis do tipo solicitado]:" << endl;
+        bool foundAny = false;
+        for (auto* obj : geometricObjects) {
+            bool isTypeMatch = false;
+            // Verifica compatibilidade de tipo
+            if (type == 1 && dynamic_cast<Vector2D*>(obj)) isTypeMatch = true;
+            else if (type == 2 && dynamic_cast<Line*>(obj)) isTypeMatch = true;
+            else if (type == 3 && dynamic_cast<Polygon*>(obj)) isTypeMatch = true;
+            // Nota: Adicione Circunferência aqui se precisar futuramente
+
+            if (isTypeMatch) {
+                cout << "   -> ID " << obj->getId() << ": " << obj->serialize() << endl;
+                foundAny = true;
+            }
+        }
+
+        if (!foundAny) {
+            cout << "  [!] Nenhum objeto desse tipo encontrado na memória." << endl;
+            cout << "  Dica: Crie um novo objeto temporário ou adicione um no menu principal." << endl;
+            return nullptr;
+        }
+        // ------------------------------------------
+
+        cout << "Digite o ID: ";
+        int id = getNumericInput();
+        for (auto* obj : geometricObjects) {
+            if (obj->getId() == id) {
+                // Double check type safety just in case
+                bool ok = false;
+                if (type == 1 && dynamic_cast<Vector2D*>(obj)) ok = true;
+                if (type == 2 && dynamic_cast<Line*>(obj)) ok = true;
+                if (type == 3 && dynamic_cast<Polygon*>(obj)) ok = true;
+                
+                if (ok) return obj;
+                else {
+                    cout << "Tipo incorreto selecionado (ID existe, mas não é do tipo pedido)." << endl;
+                    return nullptr;
+                }
+            }
+        }
+        cout << "ID não encontrado." << endl;
+        return nullptr;
+    } else if (opt == 2) {
+        if (type == 1) {
+            double x, y; cout << "  X Y: "; cin >> x >> y;
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            return new Vector2D(x, y);
+        } else if (type == 2) {
+            double x1, y1, x2, y2;
+            cout << "  P1(x y): "; cin >> x1 >> y1;
+            cout << "  P2(x y): "; cin >> x2 >> y2;
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            return new Line(Vector2D(x1, y1), Vector2D(x2, y2));
+        } else if (type == 3) {
+            int n; cout << "  Num vértices: "; cin >> n;
+            vector<Vector2D> verts;
+            for(int i=0; i<n; i++) {
+                double x, y; cout << "  V" << i+1 << ": "; cin >> x >> y;
+                verts.emplace_back(x, y);
+            }
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            return new Polygon(verts);
+        }
+    }
+    return nullptr;
+}
+
+void Menu::manageCalculator() {
+    cout << "\n=== Calculadora Geométrica ===" << endl;
+    for (size_t i = 0; i < calculatorOperations.size(); ++i) {
+        cout << (i + 1) << " - " << calculatorOperations[i].name << endl;
+    }
+    cout << "0 - Voltar" << endl;
     
-    cout << "Deseja adicionar o resultado como um novo objeto? (1 - Sim, 0 - Não): ";
-    int choice = getNumericInput();
-    if (choice == 1) {
-        addObject(result);
-        cout << "Resultado adicionado com sucesso." << endl;
+    int opt = getNumericInput();
+    if (opt == 0) return;
+
+    if (opt > 0 && opt <= static_cast<int>(calculatorOperations.size())) {
+        calculatorOperations[opt - 1].action();
     } else {
-        delete result;
-        cout << "Resultado não adicionado." << endl;
+        cout << "Opção inválida." << endl;
     }
 }
 
-int Menu::getMaxId() {
-    // TO-DO: Implementar a lógica para carregar o ID máximo
-    // da base de dados (quando 'saveObjects' for implementado)
-    return 0;
+void Menu::manageConvexHull() { cout << "Em breve..." << endl; }
+void Menu::manageMinCircle() { cout << "Em breve..." << endl; }
+
+void Menu::managePlotter() {
+    cout << "1 - Gerar visualização" << endl;
+    cout << "2 - Salvar último plot" << endl;
+    int opt = getNumericInput();
+    if(opt == 1) plotter.plot(geometricObjects);
+    else if(opt == 2) {
+        string f; cout << "Filename: "; getline(cin, f);
+        plotter.saveFigure(f);
+    }
 }
+
+void Menu::askAddResult(geometricObject* result) { }
+
+int Menu::getMaxId() { return 0; }

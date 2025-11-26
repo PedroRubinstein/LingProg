@@ -1,5 +1,9 @@
 #include <iostream> 
+#include <nlohmann/json.hpp>
+
 #include "polygon.h"
+
+using json = nlohmann::json;
 
 Polygon::Polygon(const std::vector<Vector2D> &pts)
     : m_vertices(pts) {}

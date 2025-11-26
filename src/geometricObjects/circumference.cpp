@@ -1,5 +1,9 @@
 #include <iostream>
+#include <nlohmann/json.hpp>
+
 #include "circumference.h"
+
+using json = nlohmann::json;
 
 Circumference::Circumference() = default;
 
@@ -26,7 +30,11 @@ std::ostream& operator<<(std::ostream& out, const Circumference& c) {
 }
 
 std::string Circumference::serialize() const {
-    // Format: {"center": {...}, "radius": 5.0}
-    return "{\"center\": " + m_center.serialize() +
-           ", \"radius\": " + std::to_string(m_radius) + "}";
+    json j;
+    
+    // Serializing mixed types (Object + Double)
+    j["center"] = { {"x", m_center.getX()}, {"y", m_center.getY()} };
+    j["radius"] = m_radius;
+
+    return j.dump();
 }

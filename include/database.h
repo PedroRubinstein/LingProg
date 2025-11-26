@@ -3,30 +3,38 @@
 
 #include <sqlite3.h>
 #include <string>
+#include <vector>
 #include <iostream>
+#include "geometricObjects/geometricobject.h"
 
 class DatabaseManager {
 public:
-    // Método estático para acessar a única instância da classe (Singleton)
     static DatabaseManager& getInstance();
 
-    // Deletar construtores de cópia para evitar duplicidade
     DatabaseManager(const DatabaseManager&) = delete;
     void operator=(const DatabaseManager&) = delete;
 
-    // Inicializa o banco de dados e cria as tabelas se não existirem
     bool init(const std::string& dbPath = "cartesia.db");
-
-    // Retorna a conexão crua com o SQLite (útil para queries futuras)
     sqlite3* getDB() const;
 
-    // Destrutor fecha a conexão
+    // --- New Persistence Methods ---
+    
+    // Saves an object and returns its new ID (or -1 on error)
+    int insert_object(geometricObject* obj);
+
+    // Removes an object by ID
+    bool delete_object(int id);
+
+    // Loads an object by ID (Factory Method: parses JSON to create the C++ object)
+    geometricObject* get_object_by_id(int id);
+
+    // Helper to list IDs for the menu
+    std::vector<int> get_all_ids();
+
     ~DatabaseManager();
 
 private:
-    // Construtor privado para impedir criação direta
     DatabaseManager() = default;
-    
     sqlite3* db = nullptr;
 };
 

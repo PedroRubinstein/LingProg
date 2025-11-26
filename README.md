@@ -15,17 +15,17 @@ O sistema utiliza **C++** para o gerenciamento de objetos e cálculos matemátic
 
 ## Pré-requisitos
 
-Para compilar e executar o Cartesia, você precisa de um ambiente Linux com compilador C++17, Python 3.9+ e bibliotecas de desenvolvimento do SQLite. As bibliotecas Python serão instaladas via `pip`.
+Para compilar e executar o Cartesia, você precisa de um ambiente Linux com compilador C++17, Python 3.9+, bibliotecas de desenvolvimento do SQLite e a **biblioteca JSON for Modern C++**.
 
 ### Arch Linux
 ```bash
-sudo pacman -S gcc python sqlite base-devel
+sudo pacman -S gcc python sqlite base-devel nlohmann-json
 ```
 
 ### Ubuntu / Debian
 ```bash
 sudo apt-get update
-sudo apt-get install g++ python3-dev libsqlite3-dev build-essential
+sudo apt-get install g++ python3-dev libsqlite3-dev nlohmann-json3-dev build-essential
 ```
 
 ## Instalação

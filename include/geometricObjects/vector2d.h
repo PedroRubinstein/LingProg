@@ -9,9 +9,21 @@
 
 typedef long double ld;
 
+/**
+ * @brief Representa um ponto ou vetor no espaço bidimensional.
+ */
 class Vector2D : public geometricObject {
 public:
+    /**
+     * @brief Construtor padrão. Inicializa em (0,0).
+     */
     Vector2D();
+
+    /**
+     * @brief Construtor com coordenadas.
+     * @param x Coordenada X.
+     * @param y Coordenada Y.
+     */
     Vector2D(ld x, ld y);
 
     ld getX() const;
@@ -21,27 +33,55 @@ public:
 
     geometricObject::Type type() const override;
 
-    // --- Static Geometric Helpers (Refactored) ---
-    // Returns the cross product (z-component) of vectors (b-a) and (c-a)
+    // --- Static Geometric Helpers ---
+
+    /**
+     * @brief Calcula o produto vetorial (componente Z) de (b-a) e (c-a).
+     * * Usado para determinar a orientação de três pontos.
+     * @return ld Valor positivo se CCW, negativo se CW, zero se colinear.
+     */
     static ld crossProduct(const Vector2D& a, const Vector2D& b, const Vector2D& c);
     
-    // Returns squared Euclidean distance between a and b
+    /**
+     * @brief Calcula a distância euclidiana ao quadrado entre dois pontos.
+     * * Evita a raiz quadrada para comparações de desempenho.
+     */
     static ld distSq(const Vector2D& a, const Vector2D& b);
     
-    // Returns true if a->b->c is a strictly Counter-Clockwise turn
+    /**
+     * @brief Verifica se a sequência a->b->c forma uma curva estritamente Anti-Horária (CCW).
+     * @return true Se a curva for à esquerda.
+     */
     static bool ccw(const Vector2D& a, const Vector2D& b, const Vector2D& c);
     
-    // Checks if point p lies on the segment defined by endpoints a and b
+    /**
+     * @brief Verifica se o ponto P está contido no segmento de reta definido por A e B.
+     * * @param p Ponto a verificar.
+     * @param a Início do segmento.
+     * @param b Fim do segmento.
+     * @return true Se P está sobre o segmento AB.
+     */
     static bool onSegment(const Vector2D& p, const Vector2D& a, const Vector2D& b);
-    // ---------------------------------------------
+
+    // --- Operator Overloads ---
 
     Vector2D operator+(const Vector2D& other) const;
     Vector2D operator-(const Vector2D& other) const;
-    ld operator*(const Vector2D& other) const; // Dot Product
-    ld operator^(const Vector2D& other) const; // Cross Product (2D)
+    
+    /**
+     * @brief Produto Escalar (Dot Product).
+     */
+    ld operator*(const Vector2D& other) const; 
+    
+    /**
+     * @brief Produto Vetorial 2D (Cross Product).
+     */
+    ld operator^(const Vector2D& other) const; 
+
     Vector2D& operator+=(const Vector2D& other);
     Vector2D& operator-=(const Vector2D& other);
 
+    // Operadores com escalares
     template <typename T>
     Vector2D operator*(T scalar) const {
         return Vector2D(m_x * static_cast<ld>(scalar), 
@@ -51,28 +91,22 @@ public:
     template <typename T>
     Vector2D operator/(T scalar) const {
         const ld d_scalar = static_cast<ld>(scalar);
-        if (d_scalar == 0) {
-            throw std::runtime_error("Division by zero in Vector2D operator/");
-        }
+        if (d_scalar == 0) throw std::runtime_error("Divisão por zero em Vector2D");
         return Vector2D(m_x / d_scalar, m_y / d_scalar);
     }
 
     template <typename T>
     Vector2D& operator*=(T scalar) {
         const ld d_scalar = static_cast<ld>(scalar);
-        m_x *= d_scalar;
-        m_y *= d_scalar;
+        m_x *= d_scalar; m_y *= d_scalar;
         return *this;
     }
 
     template <typename T>
     Vector2D& operator/=(T scalar) {
         const ld d_scalar = static_cast<ld>(scalar);
-        if (d_scalar == 0) {
-            throw std::runtime_error("Division by zero in Vector2D operator/=");
-        }
-        m_x /= d_scalar;
-        m_y /= d_scalar;
+        if (d_scalar == 0) throw std::runtime_error("Divisão por zero em Vector2D");
+        m_x /= d_scalar; m_y /= d_scalar;
         return *this;
     }
 
@@ -85,11 +119,17 @@ private:
     ld m_y;
 };
 
+/**
+ * @brief Permite multiplicação escalar à esquerda (ex: 2.0 * v).
+ */
 template <typename T>
 Vector2D operator*(T scalar, const Vector2D& vec) {
     return vec * scalar; 
 }
 
+/**
+ * @brief Retorna o módulo (magnitude) do vetor.
+ */
 ld abs(const Vector2D& vec);
 
 #endif

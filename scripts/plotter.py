@@ -3,12 +3,12 @@ import sys
 import matplotlib
 
 # FIX: Robust Backend Selection
-try:
-    matplotlib.use("Qt5Agg")
-except ImportError:
-    # If Qt5Agg is missing, let matplotlib pick the default
-    print("[plotter.py] Warning: Qt5Agg backend not found. Using default.", file=sys.stderr)
-    pass
+# try:
+#     matplotlib.use("Qt5Agg")
+# except ImportError:
+#     # If Qt5Agg is missing, let matplotlib pick the default
+#     print("[plotter.py] Warning: Qt5Agg backend not found. Using default.", file=sys.stderr)
+#     pass
 
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle

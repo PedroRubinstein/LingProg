@@ -5,9 +5,21 @@
 #include "geometricobject.h"
 #include "vector2d.h" 
 
+/**
+ * @brief Representa um segmento de reta definido por dois pontos.
+ */
 class Line : public geometricObject {
 public:
+    /**
+     * @brief Construtor padrão (0,0) -> (1,0).
+     */
     Line();
+
+    /**
+     * @brief Construtor com dois pontos.
+     * @param p1 Ponto inicial.
+     * @param p2 Ponto final.
+     */
     Line(const Vector2D &p1, const Vector2D &p2);
 
     const Vector2D& getP1() const;

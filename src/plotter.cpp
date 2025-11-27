@@ -6,6 +6,7 @@
 #include "geometricObjects/line.h"
 #include "geometricObjects/circumference.h"
 #include "geometricObjects/vector2d.h"
+#include "geometricObjects/polygon.h"
 
 namespace {
     inline void dict_set_double(PyObject* dict, const char* key, double value) {

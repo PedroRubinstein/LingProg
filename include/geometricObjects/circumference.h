@@ -7,9 +7,18 @@
 
 typedef long double ld;
 
+/**
+ * @brief Representa uma circunferência (círculo).
+ */
 class Circumference : public geometricObject {
 public:
     Circumference();
+    
+    /**
+     * @brief Construtor completo.
+     * @param center O ponto central.
+     * @param radius O raio da circunferência.
+     */
     Circumference(const Vector2D &center, double radius);
 
     void setRadius(double radius);

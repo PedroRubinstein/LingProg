@@ -74,6 +74,13 @@ private:
      */
     geometricObject* getObjectFromUser(int type);
 
+    /**
+     * @brief Lê os dados de um objeto geométrico a partir do console.
+     * @param type O tipo de objeto a ser lido (1=Vector, 2=Line, 3=Poly, 4=Circumference).
+     * @return geometricObject* Ponteiro para o novo objeto criado.
+     */
+    geometricObject* readObjectFromConsole(int type);
+
     std::vector<geometricObject*> geometricObjects;
     Plotter plotter;
 };

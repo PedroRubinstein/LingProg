@@ -175,6 +175,42 @@ void Menu::manageObjects() {
     }
 }
 
+geometricObject* Menu::readObjectFromConsole(int type) {
+    geometricObject* created = nullptr;
+    if (type == 1) {
+        double x, y; 
+        cout << "  X Y: "; 
+        cin >> x >> y;
+        created = new Vector2D(x, y);
+    } else if (type == 2) {
+        double x1, y1, x2, y2;
+        cout << "  P1(x y): "; cin >> x1 >> y1;
+        cout << "  P2(x y): "; cin >> x2 >> y2;
+        created = new Line(Vector2D(x1, y1), Vector2D(x2, y2));
+    } else if (type == 3) {
+        int n; 
+        cout << "  Num vértices: "; 
+        cin >> n;
+        vector<Vector2D> verts;
+        for(int i=0; i<n; i++) {
+            double x, y; 
+            cout << "  V" << i+1 << ": "; 
+            cin >> x >> y;
+            verts.emplace_back(x, y);
+        }
+        created = new Polygon(verts);
+    } else if (type == 4) {
+        double x, y, r; 
+        cout << "  Centro(x y): "; cin >> x >> y;
+        cout << "  Raio: "; cin >> r;
+        created = new Circumference(Vector2D(x, y), r);
+    }
+
+    // Limpar buffer após leitura para evitar problemas com getNumericInput subsequentes
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    return created;
+}
+
 void Menu::addObject(geometricObject *obj) {
     if (obj) {
         int id = DatabaseManager::getInstance().insert_object(obj);
@@ -193,31 +229,7 @@ void Menu::addObject(geometricObject *obj) {
     int type = getNumericInput();
     if (type == 0) return;
     
-    geometricObject* created = nullptr;
-    if (type == 1) {
-        double x, y; cout << "X Y: "; cin >> x >> y;
-        created = new Vector2D(x, y);
-    } else if (type == 2) {
-        double x1, y1, x2, y2;
-        cout << "P1(x y): "; cin >> x1 >> y1;
-        cout << "P2(x y): "; cin >> x2 >> y2;
-        created = new Line(Vector2D(x1, y1), Vector2D(x2, y2));
-    } else if (type == 3) {
-        int n; cout << "Num vértices: "; cin >> n;
-        vector<Vector2D> verts;
-        for(int i=0; i<n; i++) {
-            double x, y; cout << "V" << i+1 << ": "; cin >> x >> y;
-            verts.emplace_back(x, y);
-        }
-        created = new Polygon(verts);
-    } else if (type == 4) {
-        double x, y, r; 
-        cout << "Centro(x y): "; cin >> x >> y;
-        cout << "Raio: "; cin >> r;
-        created = new Circumference(Vector2D(x, y), r);
-    }
-
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    geometricObject* created = readObjectFromConsole(type);
 
     if (created) {
         int id = DatabaseManager::getInstance().insert_object(created);
@@ -325,26 +337,7 @@ geometricObject* Menu::getObjectFromUser(int type) {
         cout << "ID não encontrado." << endl;
         return nullptr;
     } else if (opt == 2) {
-        if (type == 1) {
-            double x, y; cout << "  X Y: "; cin >> x >> y;
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            return new Vector2D(x, y);
-        } else if (type == 2) {
-            double x1, y1, x2, y2;
-            cout << "  P1(x y): "; cin >> x1 >> y1;
-            cout << "  P2(x y): "; cin >> x2 >> y2;
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            return new Line(Vector2D(x1, y1), Vector2D(x2, y2));
-        } else if (type == 3) {
-            int n; cout << "  Num vértices: "; cin >> n;
-            vector<Vector2D> verts;
-            for(int i=0; i<n; i++) {
-                double x, y; cout << "  V" << i+1 << ": "; cin >> x >> y;
-                verts.emplace_back(x, y);
-            }
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            return new Polygon(verts);
-        }
+        return readObjectFromConsole(type);
     }
     return nullptr;
 }

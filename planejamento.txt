@@ -71,30 +71,7 @@ PARTE 1: MUDANÇAS OBRIGATÓRIAS (CRÍTICAS)
 
 ---
 
-3. ELIMINAÇÃO DE DUPLICAÇÃO DE LÓGICA DE INPUT
-   Arquivo(s) alvo: src/menu.cpp
-   
-   Problema:
-   A lógica de `std::cin >> x >> y` está repetida em `addObject` (para salvar no BD) e 
-   `getObjectFromUser` (para operações temporárias).
-
-   Solução (Factory Method):
-   Centralizar a criação de objetos a partir do console.
-
-   Passos:
-   A. Crie um método privado em `Menu` ou uma classe estática `InputHelper`:
-      geometricObject* readObjectFromConsole(geometricObject::Type type);
-
-   B. Mova os `cout` e `cin` de coordenadas para dentro deste método.
-   
-   C. Refatore `addObject` e `getObjectFromUser` para chamar esta função única:
-      // Exemplo em addObject:
-      geometricObject* newObj = readObjectFromConsole(selectedType);
-      db.insert_object(newObj);
-
----
-
-4. TRATAMENTO DE EXCEÇÕES JSON (NOSQL)
+3. TRATAMENTO DE EXCEÇÕES JSON (NOSQL)
    Arquivo(s) alvo: src/database.cpp
    
    Problema:

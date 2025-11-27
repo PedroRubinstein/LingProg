@@ -6,7 +6,6 @@
 #include <functional> 
 #include "geometricObjects/geometricobject.h" 
 #include "plotter.h"         
-#include "calculator.h"      
 
 /**
  * @brief Classe principal de interface (CLI) da aplicação.

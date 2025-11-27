@@ -39,17 +39,6 @@ bool Vector2D::ccw(const Vector2D& a, const Vector2D& b, const Vector2D& c) {
     return crossProduct(a, b, c) > 0;
 }
 
-bool Vector2D::onSegment(const Vector2D& p, const Vector2D& a, const Vector2D& b) {
-    Vector2D va = a - p;
-    Vector2D vb = b - p;
-    
-    const long double EPS = 1e-9;
-    
-    // (va ^ vb) checks collinearity
-    // (va * vb) <= 0 checks if p is between a and b (vectors point in opposite directions)
-    return std::abs(va ^ vb) < EPS && (va * vb) <= EPS;
-}
-
 // -------------------------------------
 
 Vector2D Vector2D::operator+(const Vector2D& other) const {
@@ -58,6 +47,13 @@ Vector2D Vector2D::operator+(const Vector2D& other) const {
 
 Vector2D Vector2D::operator-(const Vector2D& other) const {
     return Vector2D(m_x - other.m_x, m_y - other.m_y);
+}
+
+bool Vector2D::operator<(const Vector2D& other) const {
+    if (m_x != other.m_x) {
+        return m_x < other.m_x;
+    }
+    return m_y < other.m_y;
 }
 
 ld Vector2D::operator*(const Vector2D& other) const{

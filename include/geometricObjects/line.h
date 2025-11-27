@@ -6,7 +6,8 @@
 #include "vector2d.h" 
 
 /**
- * @brief Representa um segmento de reta definido por dois pontos.
+ * @brief Representa um Segmento definido por dois pontos (início e fim).
+ * * Diferente de uma reta infinita, este objeto tem comprimento finito.
  */
 class Line : public geometricObject {
 public:
@@ -26,6 +27,23 @@ public:
     const Vector2D& getP2() const;
     void setP1(const Vector2D &p);
     void setP2(const Vector2D &p);
+
+    /**
+     * @brief Verifica se um ponto está contido neste segmento de reta.
+     * @param p O ponto a testar.
+     * @return true Se o ponto estiver sobre o segmento.
+     */
+    bool contains(const Vector2D& p) const;
+    
+    /**
+     * @brief Verifica a posição relativa de um ponto (Esq/Dir/Colin).
+     */
+    std::string pointLocation(const Vector2D& point) const;
+
+    /**
+     * @brief Verifica se esta linha intercepta outra.
+     */
+    bool intersects(const Line& other) const;
 
     geometricObject::Type type() const override;
 

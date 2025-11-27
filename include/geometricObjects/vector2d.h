@@ -54,20 +54,12 @@ public:
      */
     static bool ccw(const Vector2D& a, const Vector2D& b, const Vector2D& c);
     
-    /**
-     * @brief Verifica se o ponto P está contido no segmento de reta definido por A e B.
-     * * @param p Ponto a verificar.
-     * @param a Início do segmento.
-     * @param b Fim do segmento.
-     * @return true Se P está sobre o segmento AB.
-     */
-    static bool onSegment(const Vector2D& p, const Vector2D& a, const Vector2D& b);
-
     // --- Operator Overloads ---
 
     Vector2D operator+(const Vector2D& other) const;
     Vector2D operator-(const Vector2D& other) const;
-    
+    bool operator<(const Vector2D& other) const;
+
     /**
      * @brief Produto Escalar (Dot Product).
      */

@@ -43,9 +43,9 @@ int Menu::getNumericInput() {
 
 void Menu::registerCalculatorOperations() {
     calculatorOperations.push_back({
-        "Localização de Ponto (Esq/Dir/Toque)",
+        "Localização de Ponto (Esq/Dir/Colinear)",
         [this]() {
-            cout << ">> Defina a Reta de referência:" << endl;
+            cout << ">> Defina o Segmento de referência:" << endl;
             geometricObject* l = getObjectFromUser(2);
             if (!l) return;
 
@@ -53,8 +53,12 @@ void Menu::registerCalculatorOperations() {
             geometricObject* p = getObjectFromUser(1);
             if (!p) { if(l->getId()==-1) delete l; return; }
 
-            string res = Calculator::pointLocationTest(*dynamic_cast<Line*>(l), *dynamic_cast<Vector2D*>(p));
-            cout << "\n>> Resultado: " << res << endl;
+            // ANTES: Calculator::pointLocationTest(...)
+            // DEPOIS: Chamada direta no objeto Line
+            Line* lineObj = dynamic_cast<Line*>(l);
+            Vector2D* pointObj = dynamic_cast<Vector2D*>(p);
+            
+            cout << "\n>> Resultado: " << lineObj->pointLocation(*pointObj) << endl;
 
             if(l->getId() == -1) delete l;
             if(p->getId() == -1) delete p;
@@ -64,17 +68,18 @@ void Menu::registerCalculatorOperations() {
     calculatorOperations.push_back({
         "Interseção de Segmentos",
         [this]() {
-            cout << ">> Defina o Segmento 1:" << endl;
+            // ... (código de obter s1 e s2 igual) ...
             geometricObject* s1 = getObjectFromUser(2);
             if(!s1) return;
-
-            cout << ">> Defina o Segmento 2:" << endl;
             geometricObject* s2 = getObjectFromUser(2);
             if(!s2) { if(s1->getId()==-1) delete s1; return; }
 
-            bool res = Calculator::checkIntersection(*dynamic_cast<Line*>(s1), *dynamic_cast<Line*>(s2));
+            // ANTES: Calculator::checkIntersection(...)
+            // DEPOIS: Chamada direta
+            bool res = dynamic_cast<Line*>(s1)->intersects(*dynamic_cast<Line*>(s2));
+            
             cout << "\n>> Resultado: " << (res ? "INTERCEPTAM" : "NÃO INTERCEPTAM") << endl;
-
+            
             if(s1->getId() == -1) delete s1;
             if(s2->getId() == -1) delete s2;
         }
@@ -83,12 +88,14 @@ void Menu::registerCalculatorOperations() {
     calculatorOperations.push_back({
         "Área de Polígono",
         [this]() {
-            cout << "\n[!] Aviso: O polígono não deve se auto-intersectar para o cálculo correto." << endl;
-            cout << ">> Defina o Polígono:" << endl;
+            // ...
             geometricObject* poly = getObjectFromUser(3);
             if(!poly) return;
 
-            double area = Calculator::polygonArea(*dynamic_cast<Polygon*>(poly));
+            // ANTES: Calculator::polygonArea(...)
+            // DEPOIS: Chamada direta
+            double area = dynamic_cast<Polygon*>(poly)->getArea();
+            
             cout << "\n>> Área: " << area << endl;
 
             if(poly->getId() == -1) delete poly;
@@ -182,7 +189,7 @@ void Menu::addObject(geometricObject *obj) {
     }
 
     cout << "Selecione o tipo:" << endl;
-    cout << "1 - Vetor/Ponto\n2 - Reta\n3 - Polígono\n4 - Circunferência\n0 - Cancelar" << endl;
+    cout << "1 - Vetor/Ponto\n2 - Segmento\n3 - Polígono\n4 - Circunferência\n0 - Cancelar" << endl;
     int type = getNumericInput();
     if (type == 0) return;
     
@@ -375,21 +382,7 @@ void Menu::manageConvexHull() {
         return;
     }
 
-    cout << "\nEscolha o Algoritmo:" << endl;
-    cout << "1 - Graham Scan" << endl;
-    cout << "2 - Monotone Chain (Andrew's)" << endl;
-    int algo = getNumericInput();
-
-    Polygon resultHull;
-    if (algo == 1) {
-        resultHull = ConvexHull::grahamScan(points);
-    } else if (algo == 2) {
-        resultHull = ConvexHull::monotoneChain(points);
-    } else {
-        cout << "Opção inválida." << endl;
-        if(inputObj->getId() == -1) delete inputObj;
-        return;
-    }
+    Polygon resultHull = ConvexHull::monotoneChain(points);
 
     cout << "\n>> Resultado: Polígono com " << resultHull.getVertices().size() << " vértices." << endl;
     cout << resultHull << endl;
@@ -489,7 +482,7 @@ void Menu::managePlotter() {
     } 
     else if (opt == 3) {
         cout << "Escolha o tipo: " << endl;
-        cout << "1 - Vetor/Ponto\n2 - Reta\n3 - Polígono\n4 - Circunferência" << endl;
+        cout << "1 - Vetor/Ponto\n2 - Segmento\n3 - Polígono\n4 - Circunferência" << endl;
         int type = getNumericInput();
 
         vector<geometricObject*> subset;

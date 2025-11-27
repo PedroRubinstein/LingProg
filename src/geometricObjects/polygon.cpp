@@ -1,6 +1,6 @@
 #include <iostream> 
 #include <nlohmann/json.hpp>
-
+#include <cmath> 
 #include "polygon.h"
 
 using json = nlohmann::json;
@@ -18,6 +18,20 @@ void Polygon::setVertices(const std::vector<Vector2D> &pts) {
 
 const std::vector<Vector2D>& Polygon::getVertices() const {
     return m_vertices;
+}
+
+double Polygon::getArea() const {
+    if (m_vertices.size() < 3) return 0.0;
+
+    long double area = 0.0;
+    for (size_t i = 0; i < m_vertices.size(); ++i) {
+        // Shoelace Formula usando operador ^ (cross product) do Vector2D
+        const Vector2D& current = m_vertices[i];
+        const Vector2D& next = m_vertices[(i + 1) % m_vertices.size()];
+        area += (current ^ next);
+    }
+
+    return 0.5 * std::abs(area);
 }
 
 geometricObject::Type Polygon::type() const { 

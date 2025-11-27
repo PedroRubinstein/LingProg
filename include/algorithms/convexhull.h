@@ -11,20 +11,10 @@
 class ConvexHull {
 public:
     /**
-     * @brief Calcula o Fecho Convexo utilizando o algoritmo Graham Scan.
-     * * Este método ordena os pontos angularmente em relação a um pivô inicial
-     * e percorre a lista para construir a envoltória.
-     * * @note Complexidade: O(N log N) devido à ordenação.
-     * @param points O conjunto de pontos (Vector2D) de entrada.
-     * @return Polygon O polígono resultante que representa o fecho convexo.
-     */
-    static Polygon grahamScan(const std::vector<Vector2D>& points);
-
-    /**
      * @brief Calcula o Fecho Convexo utilizando o algoritmo Monotone Chain (Andrew's Algorithm).
      * * Constrói o fecho superior e inferior separadamente após ordenar os pontos
      * lexicograficamente (por X, depois por Y).
-     * * @note Complexidade: O(N log N). Geralmente mais rápido na prática que o Graham Scan.
+     * * @note Complexidade: O(N log N).
      * @param points O conjunto de pontos (Vector2D) de entrada.
      * @return Polygon O polígono resultante que representa o fecho convexo.
      */

@@ -37,6 +37,12 @@ public:
      */
     const std::vector<Vector2D>& getVertices() const;
 
+    /**
+     * @brief Calcula a área do polígono usando a fórmula Shoelace.
+     * @return double Área absoluta.
+     */
+    double getArea() const;
+
     geometricObject::Type type() const override;
 
     friend std::ostream& operator<<(std::ostream& out, const Polygon& p);

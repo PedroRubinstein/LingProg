@@ -45,6 +45,12 @@ public:
      */
     bool intersects(const Line& other) const;
 
+    /**
+     * @brief Permite que um visitante processe esta instância de Line.
+     * @param visitor O visitante que executará a lógica específica para linhas.
+     */
+    void accept(ShapeVisitor& visitor) override;
+
     geometricObject::Type type() const override;
 
     friend std::ostream& operator<<(std::ostream& out, const Line& l);

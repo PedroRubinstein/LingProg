@@ -38,3 +38,7 @@ std::string Circumference::serialize() const {
 
     return j.dump();
 }
+
+void Circumference::accept(ShapeVisitor& visitor) {
+    visitor.visit(*this); 
+}

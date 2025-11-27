@@ -72,3 +72,6 @@ std::string Line::serialize() const {
     return j.dump();
 }
 
+void Line::accept(ShapeVisitor& visitor) {
+    visitor.visit(*this);
+}

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#include "visitor.h"
 
 /**
  * @brief Classe base abstrata para todos os objetos geométricos.
@@ -48,6 +49,14 @@ public:
      * @return std::string Representação JSON do objeto.
      */
     virtual std::string serialize() const = 0;
+
+    /**
+     * @brief Aceita um visitante para executar uma operação sobre este objeto.
+     * Implementa o mecanismo de "Double Dispatch", redirecionando a chamada 
+     * para o método visit() específico do tipo concreto deste objeto.
+     * @param visitor Referência para o objeto que implementa a interface ShapeVisitor.
+     */
+    virtual void accept(ShapeVisitor& visitor) = 0;
 
 private:
     int id = -1;

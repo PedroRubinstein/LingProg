@@ -27,6 +27,12 @@ public:
     ld getRadius() const;
     const Vector2D& getCenter() const;
 
+    /**
+     * @brief Permite que um visitante processe esta instância de Circumference.
+     * @param visitor O visitante que executará a lógica específica para circunferências.
+     */
+    void accept(ShapeVisitor& visitor) override;
+
     geometricObject::Type type() const override;
 
     friend std::ostream& operator<<(std::ostream& out, const Circumference& c);

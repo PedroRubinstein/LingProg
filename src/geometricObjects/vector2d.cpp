@@ -96,3 +96,7 @@ std::string Vector2D::serialize() const {
 void to_json(json& j, const Vector2D& v) {
     j = json{{"x", v.getX()}, {"y", v.getY()}};
 }
+
+void Vector2D::accept(ShapeVisitor& visitor) {
+    visitor.visit(*this); 
+}

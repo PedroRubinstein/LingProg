@@ -1,0 +1,216 @@
+PLANO_DE_REFATORACAO_E_MELHORIAS_CARTESIA.txt
+
+================================================================================
+PROJETO: Cartesia - Ferramenta de Modelagem Geométrica
+DATA: 27/11/2025
+PRIORIDADE: Alta para itens Obrigatórios / Média para Opcionais e Funcionalidades
+================================================================================
+
+--------------------------------------------------------------------------------
+PARTE 1: MUDANÇAS OBRIGATÓRIAS (CRÍTICAS)
+--------------------------------------------------------------------------------
+
+1. CORREÇÃO DA VIOLAÇÃO DO PRINCÍPIO ABERTO/FECHADO (OCP)
+   Arquivo(s) alvo: src/plotter.cpp, include/geometricObjects/geometricobject.h
+   
+   Problema:
+   O arquivo `plotter.cpp` utiliza um `switch-case` gigante para verificar o tipo do objeto
+   e decidir como desenhá-lo. Adicionar uma nova forma geométrica exige modificar a classe
+   do objeto E o arquivo do plotter.
+
+   Solução (Padrão Visitor):
+   Implementar o padrão Visitor para separar a lógica de visualização da estrutura dos dados,
+   sem acoplar as classes geométricas à API do Python.
+
+   Passos:
+   A. Crie uma interface `ShapeVisitor` em `include/visitor.h`:
+      class ShapeVisitor {
+      public:
+          virtual void visit(class Vector2D& v) = 0;
+          virtual void visit(class Line& l) = 0;
+          virtual void visit(class Polygon& p) = 0;
+          // ... outros tipos
+      };
+
+   B. Adicione o método virtual na base `geometricObject`:
+      virtual void accept(ShapeVisitor& visitor) = 0;
+
+   C. Implemente `accept` nas classes concretas (Vector2D, Line, etc.):
+      void Vector2D::accept(ShapeVisitor& visitor) { visitor.visit(*this); }
+
+   D. Refatore `Plotter` para ser um Visitor (`PlotterVisitor`):
+      Mova a lógica de criação de dicionários Python (que estava no switch) para dentro
+      dos métodos `visit` correspondentes. O `plotter.cpp` apenas iterará sobre os objetos
+      chamando `obj->accept(plotterVisitor)`.
+
+---
+
+2. REMOÇÃO DE REDUNDÂNCIA NA VERIFICAÇÃO DE TIPOS
+   Arquivo(s) alvo: src/menu.cpp
+   
+   Problema:
+   O código verifica o `enum Type` e logo em seguida faz um `dynamic_cast`. Isso é redundante
+   e custoso. Se o enum garante o tipo, o cast é seguro.
+
+   Solução:
+   Substituir `dynamic_cast` por `static_cast` quando o tipo já foi verificado via Enum,
+   ou confiar puramente no polimorfismo (idealmente resolvido pelo item 1).
+
+   Passos:
+   A. Localize trechos como:
+      if (type == 1 && dynamic_cast<Vector2D*>(obj)) { ... }
+   
+   B. Altere para:
+      if (obj->type() == geometricObject::Type::Vector2D) {
+          auto* v = static_cast<Vector2D*>(obj);
+          // lógica
+      }
+
+   C. Nota: Em métodos como `manageConvexHull`, use asserções para garantir que o objeto
+      passado é realmente o esperado se não usar o sistema de tipos seguro.
+
+---
+
+3. ELIMINAÇÃO DE DUPLICAÇÃO DE LÓGICA DE INPUT
+   Arquivo(s) alvo: src/menu.cpp
+   
+   Problema:
+   A lógica de `std::cin >> x >> y` está repetida em `addObject` (para salvar no BD) e 
+   `getObjectFromUser` (para operações temporárias).
+
+   Solução (Factory Method):
+   Centralizar a criação de objetos a partir do console.
+
+   Passos:
+   A. Crie um método privado em `Menu` ou uma classe estática `InputHelper`:
+      geometricObject* readObjectFromConsole(geometricObject::Type type);
+
+   B. Mova os `cout` e `cin` de coordenadas para dentro deste método.
+   
+   C. Refatore `addObject` e `getObjectFromUser` para chamar esta função única:
+      // Exemplo em addObject:
+      geometricObject* newObj = readObjectFromConsole(selectedType);
+      db.insert_object(newObj);
+
+---
+
+4. TRATAMENTO DE EXCEÇÕES JSON (NOSQL)
+   Arquivo(s) alvo: src/database.cpp
+   
+   Problema:
+   O bloco `catch (json::exception& e)` apenas imprime o erro e retorna `nullptr`. O chamador
+   não sabe que houve um erro crítico de dados corrompidos.
+
+   Solução:
+   Lançar exceção para a camada superior tratar.
+
+   Passos:
+   A. Remova o `return nullptr` dentro do `catch`.
+   
+   B. Lance uma exceção padrão ou personalizada:
+      catch (json::exception& e) {
+          throw std::runtime_error(std::string("DB Corrupto ID ") + std::to_string(id) + ": " + e.what());
+      }
+
+   C. No `src/menu.cpp` (método `loadObjects`), envolva a chamada ao banco num `try-catch`
+      para alertar o usuário de forma amigável:
+      try {
+          obj = db.get_object_by_id(id);
+      } catch (const std::exception& e) {
+          cout << "[ERRO CRÍTICO] Falha ao carregar objeto: " << e.what() << endl;
+      }
+
+
+================================================================================
+PARTE 2: MUDANÇAS OPCIONAIS (MELHORIAS DE QUALIDADE)
+================================================================================
+
+1. PERFORMANCE NO PLOTTER (CACHE DE MÓDULO)
+   Arquivo(s) alvo: src/plotter.cpp
+   
+   Problema:
+   O módulo Python é recarregado (`importlib.reload`) a cada chamada de `plot()`. Isso causa
+   lentidão desnecessária em loops de renderização ou uso frequente.
+
+   Solução:
+   Carregar o módulo Python apenas uma vez na inicialização da classe `Plotter`.
+
+   Passos:
+   A. Adicione um membro `PyObject* pModule` na classe `Plotter`.
+   B. No construtor do `Plotter`, faça o `PyImport_Import` e armazene o ponteiro.
+   C. No destrutor, faça o `Py_DECREF`.
+   D. Remova as linhas de `importlib.reload` do método `plot()`.
+
+---
+
+2. INTEGRAÇÃO COM PYTHON (MODERNIZAÇÃO)
+   Arquivo(s) alvo: src/plotter.cpp, Makefile
+   
+   Problema:
+   O uso da C-API pura (`PyObject*`, `PyTuple_New`, etc.) é verboso, difícil de ler e 
+   propenso a vazamento de memória (Reference Counting manual).
+
+   Solução:
+   Utilizar a biblioteca `pybind11` para fazer a ponte C++/Python.
+
+   Passos:
+   A. Instalar `pybind11` via gerenciador de pacotes do sistema.
+   B. Atualizar o `Makefile` para incluir os headers do `pybind11`.
+   C. Reescrever `src/plotter.cpp` usando a sintaxe moderna:
+      #include <pybind11/embed.h>
+      namespace py = pybind11;
+      
+      void Plotter::plot(...) {
+          py::scoped_interpreter guard{}; // Inicia Python
+          auto plotterModule = py::module_::import("plotter");
+          // Conversão automática de vetores C++ para Listas Python
+          plotterModule.attr("plot_objects")(objects); 
+      }
+
+
+================================================================================
+PARTE 3: NOVAS FUNCIONALIDADES (SUGESTÕES)
+================================================================================
+
+1. ALGORITMO "POINT IN POLYGON" (CSES Task 2192)
+   Arquivo(s) alvo: include/geometricObjects/polygon.h, src/geometricObjects/polygon.cpp
+   
+   Descrição:
+   Implementar a funcionalidade para verificar se um ponto está DENTRO, FORA ou NA BORDA
+   de um polígono. Isso resolve o problema clássico de geometria computacional (Ray Casting).
+
+   Solução:
+   Utilizar o algoritmo de Ray Casting (lançar um raio horizontal e contar interseções).
+
+   Passos:
+   A. Adicionar a assinatura no `polygon.h`:
+      enum class PointLocation { INSIDE, OUTSIDE, BOUNDARY };
+      PointLocation containsPoint(const Vector2D& p) const;
+
+   B. Implementar a lógica em `polygon.cpp`:
+      PointLocation Polygon::containsPoint(const Vector2D& p) const {
+          bool inside = false;
+          // Verificar primeiro se está na borda (boundary)
+          for (size_t i = 0; i < m_vertices.size(); i++) {
+              Vector2D p1 = m_vertices[i];
+              Vector2D p2 = m_vertices[(i + 1) % m_vertices.size()];
+              // Usar Line::contains ou produto vetorial para checar colinearidade/borda
+              if (Line(p1, p2).contains(p)) return PointLocation::BOUNDARY;
+              
+              // Lógica de Ray Casting
+              if ((p1.getY() > p.getY()) != (p2.getY() > p.getY()) &&
+                  p.getX() < (p2.getX() - p1.getX()) * (p.getY() - p1.getY()) / 
+                             (p2.getY() - p1.getY()) + p1.getX()) {
+                  inside = !inside;
+              }
+          }
+          return inside ? PointLocation::INSIDE : PointLocation::OUTSIDE;
+      }
+
+   C. Integrar no Menu (`src/menu.cpp`):
+      Adicionar uma nova opção na "Calculadora Geométrica" ou no menu principal para testar
+      um ponto contra um polígono selecionado.
+
+================================================================================
+FIM DO DOCUMENTO
+================================================================================

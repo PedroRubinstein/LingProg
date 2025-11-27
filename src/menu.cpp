@@ -1,3 +1,4 @@
+#include "algorithms/mincircle.h"
 #include "menu.h"
 #include "database.h"
 #include "algorithms/convexhull.h"
@@ -104,11 +105,11 @@ void Menu::pauseForEnter() {
 void Menu::showMenu() {
     while (true) {
         cout << "\n===== Menu Principal =====" << endl;
-        cout << "1 - Gerenciamento de Objetos Geométricos (SQL)" << endl;
+        cout << "1 - Gerenciamento de Objetos Geométricos" << endl;
         cout << "2 - Calculadora Geométrica" << endl;
-        cout << "3 - Fecho Convexo (Convex Hull)" << endl;
-        cout << "4 - Círculo Mínimo (Não implementado)" << endl;
-        cout << "5 - Visualização (Plotter)" << endl;
+        cout << "3 - Fecho Convexo" << endl;
+        cout << "4 - Círculo Mínimo" << endl;
+        cout << "5 - Visualização" << endl;
         cout << "0 - Sair" << endl;
 
         cout << "\nEscolha uma opção: ";
@@ -402,7 +403,37 @@ void Menu::manageConvexHull() {
     if(inputObj->getId() == -1) delete inputObj;
 }
 
-void Menu::manageMinCircle() { cout << "Em breve..." << endl; }
+void Menu::manageMinCircle() {
+    cout << "\n=== Círculo Mínimo (Welzl Iterativo) ===" << endl;
+    cout << ">> Selecione o Polígono (pontos):" << endl;
+    
+    geometricObject* inputObj = getObjectFromUser(3); // Tipo 3 = Polígono
+    if (!inputObj) return;
+
+    Polygon* poly = dynamic_cast<Polygon*>(inputObj);
+    const auto& points = poly->getVertices();
+
+    if (points.empty()) {
+        cout << "Erro: O objeto selecionado não contém pontos." << endl;
+        if(inputObj->getId() == -1) delete inputObj;
+        return;
+    }
+
+    // Execução do algoritmo
+    Circumference res = MinCircle::find(points);
+
+    cout << "\n>> Resultado: " << res << endl;
+    
+    cout << "\nDeseja salvar o resultado no banco? (1-Sim / 0-Não): ";
+    if (getNumericInput() == 1) {
+        // Cria uma nova instância para salvar no DatabaseManager
+        Circumference* toSave = new Circumference(res.getCenter(), res.getRadius());
+        addObject(toSave);
+    }
+
+    // Limpeza de memória se o objeto de entrada foi criado temporariamente
+    if(inputObj->getId() == -1) delete inputObj;
+}
 
 void Menu::managePlotter() {
     cout << "\n=== Visualização (Plotter) ===" << endl;

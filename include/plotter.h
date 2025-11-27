@@ -10,8 +10,8 @@
  */
 class Plotter {
 public:
-    Plotter();
-    ~Plotter();
+    Plotter(){}
+    ~Plotter(){}
 
     /**
      * @brief Plota uma lista de objetos geométricos numa janela gráfica.

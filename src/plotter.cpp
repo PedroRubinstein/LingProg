@@ -3,37 +3,12 @@
 #include <iostream>
 
 #include "plotter.h"
-#include "geometricObjects/line.h"
-#include "geometricObjects/circumference.h"
-#include "geometricObjects/vector2d.h"
-#include "geometricObjects/polygon.h"
-
-namespace {
-    inline void dict_set_double(PyObject* dict, const char* key, double value) {
-        PyObject* pyVal = PyFloat_FromDouble(value);
-        if (!pyVal) return;
-        PyDict_SetItemString(dict, key, pyVal);
-        Py_DECREF(pyVal);
-    }
-
-    inline void dict_set_string(PyObject* dict, const char* key, const char* value) {
-        PyObject* pyVal = PyUnicode_FromString(value);
-        if (!pyVal) return;
-        PyDict_SetItemString(dict, key, pyVal);
-        Py_DECREF(pyVal);
-    }
-}
-
-Plotter::Plotter() {
-    // Initialization is now handled in main.cpp
-}
-
-Plotter::~Plotter() {
-    // Finalization is now handled in main.cpp
-}
+#include "plottervisitor.h"
+#include "visitor.h"
+#include "geometricObjects/geometricobject.h"
 
 bool Plotter::saveFigure(const std::string &filename) {
-    // Ensure Python is running (Should be true if called from main)
+    // Garante que o Python está a correr
     if (!Py_IsInitialized()) {
         std::cerr << "Error: Python not initialized." << std::endl;
         return false;
@@ -115,7 +90,7 @@ void Plotter::plot(const std::vector<geometricObject*> &objects) {
 
     PyGILState_STATE gstate = PyGILState_Ensure();
 
-    // Reload the plotter module to reset state
+    // Recarrega o módulo plotter para limpar o estado (se necessário durante desenvolvimento)
     PyRun_SimpleString("import importlib");
     PyRun_SimpleString("import sys");
     PyRun_SimpleString("if 'plotter' in sys.modules: importlib.reload(sys.modules['plotter'])");
@@ -145,7 +120,8 @@ void Plotter::plot(const std::vector<geometricObject*> &objects) {
         return;
     }
 
-    PyObject* pShapes = PyList_New(objects.size());
+    // 1. Cria a lista vazia onde os dicionários serão anexados
+    PyObject* pShapes = PyList_New(0);
     if (!pShapes) {
         PyErr_Print();
         Py_DECREF(pFunc);
@@ -154,108 +130,16 @@ void Plotter::plot(const std::vector<geometricObject*> &objects) {
         return;
     }
 
-    size_t idx = 0;
+    // 2. Instancia o Visitor passando a lista de destino
+    PlotterVisitor visitor(pShapes);
+
+    // 3. Itera sobre os objetos e aplica o Visitor (Double Dispatch)
+    // O switch-case foi removido; cada objeto sabe como se desenhar através do visitor.
     for (auto* obj : objects) {
-        PyObject* shape = PyDict_New();
-        if (!shape) {
-            PyErr_Print();
-            continue;
-        }
-
-        switch (obj->type()) {
-            case geometricObject::Type::Point: {
-                auto* p = dynamic_cast<Vector2D*>(obj);
-                dict_set_string(shape, "type", "point");
-                dict_set_double(shape, "x", p->getX());
-                dict_set_double(shape, "y", p->getY());
-                break;
-            }
-            case geometricObject::Type::Polygon: {
-                auto* poly = dynamic_cast<Polygon*>(obj);
-                dict_set_string(shape, "type", "polygon");
-                const auto& verts = poly->getVertices();
-                PyObject* xs = PyList_New(verts.size());
-                PyObject* ys = PyList_New(verts.size());
-                if (!xs || !ys) {
-                    Py_XDECREF(xs);
-                    Py_XDECREF(ys);
-                    Py_DECREF(shape);
-                    PyErr_Print();
-                    continue;
-                }
-                for (size_t i = 0; i < verts.size(); ++i) {
-                    PyList_SetItem(xs, i, PyFloat_FromDouble(verts[i].getX()));
-                    PyList_SetItem(ys, i, PyFloat_FromDouble(verts[i].getY()));
-                }
-                PyDict_SetItemString(shape, "x", xs);
-                Py_DECREF(xs);
-                PyDict_SetItemString(shape, "y", ys);
-                Py_DECREF(ys);
-                break;
-            }
-            case geometricObject::Type::Line: {
-                auto* l = dynamic_cast<Line*>(obj);
-                dict_set_string(shape, "type", "line");
-                PyObject* xs = PyList_New(2);
-                PyObject* ys = PyList_New(2);
-                if (!xs || !ys) {
-                    Py_XDECREF(xs);
-                    Py_XDECREF(ys);
-                    Py_DECREF(shape);
-                    PyErr_Print();
-                    continue;
-                }
-                PyList_SetItem(xs, 0, PyFloat_FromDouble(l->getP1().getX()));
-                PyList_SetItem(xs, 1, PyFloat_FromDouble(l->getP2().getX()));
-                PyList_SetItem(ys, 0, PyFloat_FromDouble(l->getP1().getY()));
-                PyList_SetItem(ys, 1, PyFloat_FromDouble(l->getP2().getY()));
-                PyDict_SetItemString(shape, "x", xs);
-                Py_DECREF(xs);
-                PyDict_SetItemString(shape, "y", ys);
-                Py_DECREF(ys);
-                break;
-            }
-            case geometricObject::Type::Circumference: {
-                auto* c = dynamic_cast<Circumference*>(obj);
-                dict_set_string(shape, "type", "circumference");
-                dict_set_double(shape, "radius", c->getRadius());
-                PyObject* center = PyTuple_New(2);
-                if (!center) {
-                    PyErr_Print();
-                    Py_DECREF(shape);
-                    continue;
-                }
-                PyObject* cx = PyFloat_FromDouble(c->getCenter().getX());
-                PyObject* cy = PyFloat_FromDouble(c->getCenter().getY());
-                if (!cx || !cy) {
-                    Py_XDECREF(cx);
-                    Py_XDECREF(cy);
-                    Py_DECREF(center);
-                    Py_DECREF(shape);
-                    PyErr_Print();
-                    continue;
-                }
-                PyTuple_SetItem(center, 0, cx);
-                PyTuple_SetItem(center, 1, cy);
-                PyDict_SetItemString(shape, "center", center);
-                Py_DECREF(center);
-                break;
-            }
-            case geometricObject::Type::Vector2D: {
-                auto* v = dynamic_cast<Vector2D*>(obj);
-                dict_set_string(shape, "type", "vector");
-                dict_set_double(shape, "x", v->getX());
-                dict_set_double(shape, "y", v->getY());
-                break;
-            }
-            default:
-                dict_set_string(shape, "type", "unknown");
-                break;
-        }
-
-        PyList_SetItem(pShapes, idx++, shape);
+        obj->accept(visitor);
     }
 
+    // 4. Prepara os argumentos para a função Python
     PyObject* pArgs = PyTuple_New(1);
     if (!pArgs) {
         PyErr_Print();
@@ -265,8 +149,11 @@ void Plotter::plot(const std::vector<geometricObject*> &objects) {
         PyGILState_Release(gstate);
         return;
     }
+    
+    // PyTuple_SetItem rouba a referência de pShapes, então não precisamos decrementar pShapes manualmente se tiver sucesso
     PyTuple_SetItem(pArgs, 0, pShapes);
 
+    // 5. Chama a função Python plotter.plot_objects(shapes)
     PyObject* pRes = PyObject_CallObject(pFunc, pArgs);
     if (!pRes) {
         PyErr_Print();
@@ -278,7 +165,7 @@ void Plotter::plot(const std::vector<geometricObject*> &objects) {
     Py_DECREF(pFunc);
     Py_DECREF(pModule);
     
-    // Clean up matplotlib state from Python side
+    // Limpeza do estado do matplotlib
     PyRun_SimpleString("import matplotlib.pyplot as plt");
     PyRun_SimpleString("plt.close('all')");
     

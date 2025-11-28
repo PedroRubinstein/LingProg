@@ -59,6 +59,7 @@ run: $(BIN_DIR)/$(TARGET_EXEC)
 clean:
 	@echo "Cleaning build artifacts..."
 	@rm -rf $(BUILD_DIR) $(BIN_DIR)
+	@rm -f cartesia.db
 
 debug: CXXFLAGS += -DDEBUG -g
 debug: clean all

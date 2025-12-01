@@ -58,6 +58,3 @@ std::string Polygon::serialize() const {
     json += "]}";
     return json;
 }
-
-void Polygon::accept(ShapeVisitor& visitor) {
-    visitor.visit(*this); }

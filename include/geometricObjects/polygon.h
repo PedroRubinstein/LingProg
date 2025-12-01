@@ -43,12 +43,6 @@ public:
      */
     double getArea() const;
 
-    /**
-     * @brief Permite que um visitante processe esta instância de Polygon.
-     * @param visitor O visitante que executará a lógica específica para polígonos.
-     */
-    void accept(ShapeVisitor& visitor) override;
-
     geometricObject::Type type() const override;
 
     friend std::ostream& operator<<(std::ostream& out, const Polygon& p);

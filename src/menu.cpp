@@ -302,10 +302,9 @@ geometricObject* Menu::getObjectFromUser(int type) {
         bool foundAny = false;
         for (auto* obj : geometricObjects) {
             bool isTypeMatch = false;
-            
-	    if (type == 1 && obj->type() == geometricObject::Type::Vector2D) isTypeMatch = true;
-            else if (type == 2 && obj->type() == geometricObject::Type::Line) isTypeMatch = true;
-            else if (type == 3 && obj->type() == geometricObject::Type::Polygon) isTypeMatch = true;
+            if (type == 1 && dynamic_cast<Vector2D*>(obj)) isTypeMatch = true;
+            else if (type == 2 && dynamic_cast<Line*>(obj)) isTypeMatch = true;
+            else if (type == 3 && dynamic_cast<Polygon*>(obj)) isTypeMatch = true;
 
             if (isTypeMatch) {
                 cout << "   -> ID " << obj->getId() << ": " << obj->serialize() << endl;
@@ -441,6 +440,7 @@ void Menu::managePlotter() {
         }
     } 
     else if (opt == 2) {
+        // --- ADDED: List objects before asking for IDs ---
         cout << "\n--- Objetos Disponíveis ---" << endl;
         listObjects();
         cout << "---------------------------" << endl;

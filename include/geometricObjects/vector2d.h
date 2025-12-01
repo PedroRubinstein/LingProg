@@ -106,12 +106,6 @@ public:
 
     std::string serialize() const override;
 
-    /**
-     * @brief Permite que um visitante processe esta instância de Vector2D.
-     * @param visitor O visitante que executará a lógica específica para vetores.
-     */
-    void accept(ShapeVisitor& visitor) override;
-
 private:
     ld m_x;
     ld m_y;

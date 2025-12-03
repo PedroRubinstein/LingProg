@@ -47,6 +47,22 @@ std::ostream& operator<<(std::ostream& out, const Polygon& p) {
     return out;
 }
 
+std::istream& operator>>(std::istream& in, Polygon& p) {
+    int n;
+    in >> n; // Lê a quantidade de vértices
+    
+    p.m_vertices.clear();
+    if (n > 0) {
+        p.m_vertices.reserve(n);
+        for(int i = 0; i < n; ++i) {
+            Vector2D v;
+            in >> v; // Usa o operator>> do Vector2D
+            p.m_vertices.push_back(v);
+        }
+    }
+    return in;
+}
+
 std::string Polygon::serialize() const {
     std::string json = "{\"vertices\": [";
     for (size_t i = 0; i < m_vertices.size(); ++i) {

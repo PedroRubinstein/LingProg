@@ -62,6 +62,12 @@ std::ostream& operator<<(std::ostream& out, const Line& l) {
     return out << "Segmento(P1: " << l.m_p1 << ", P2: " << l.m_p2 << ")";
 }
 
+std::istream& operator>>(std::istream& in, Line& l) {
+    // Utiliza o operator>> do Vector2D duas vezes
+    in >> l.m_p1 >> l.m_p2;
+    return in;
+}
+
 std::string Line::serialize() const {
     json j;
     

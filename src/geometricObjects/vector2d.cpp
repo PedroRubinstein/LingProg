@@ -81,6 +81,13 @@ std::ostream& operator<<(std::ostream &out, const Vector2D &vector) {
     return out;
 }
 
+// [NOVO] Implementação do input stream
+std::istream& operator>>(std::istream &in, Vector2D &vector) {
+    // Lê dois long doubles
+    in >> vector.m_x >> vector.m_y;
+    return in;
+}
+
 ld abs(const Vector2D& vec) {
     return sqrt(vec.getX() * vec.getX() + vec.getY() * vec.getY());
 }

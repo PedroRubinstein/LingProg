@@ -15,6 +15,13 @@
 
 using namespace std;
 
+// Helper local para forçar o tipo 'Point' (que será plotado em Azul)
+class PointWrapper : public Vector2D {
+public:
+    using Vector2D::Vector2D;
+    geometricObject::Type type() const override { return geometricObject::Type::Point; }
+};
+
 Menu::Menu() {
     registerCalculatorOperations();
     loadObjects();
@@ -177,36 +184,68 @@ void Menu::manageObjects() {
 
 geometricObject* Menu::readObjectFromConsole(int type) {
     geometricObject* created = nullptr;
-    if (type == 1) {
-        double x, y; 
-        cout << "  X Y: "; 
-        cin >> x >> y;
-        created = new Vector2D(x, y);
-    } else if (type == 2) {
-        double x1, y1, x2, y2;
-        cout << "  P1(x y): "; cin >> x1 >> y1;
-        cout << "  P2(x y): "; cin >> x2 >> y2;
-        created = new Line(Vector2D(x1, y1), Vector2D(x2, y2));
-    } else if (type == 3) {
-        int n; 
-        cout << "  Num vértices: "; 
-        cin >> n;
-        vector<Vector2D> verts;
-        for(int i=0; i<n; i++) {
-            double x, y; 
-            cout << "  V" << i+1 << ": "; 
-            cin >> x >> y;
-            verts.emplace_back(x, y);
+
+    if (type == 1) { // Vector2D
+        Vector2D* vec = new Vector2D();
+        cout << "  Digite as coordenadas (X Y): "; 
+        cin >> *vec;
+        created = vec;
+    } 
+    else if (type == 2) { // Line [MODIFICADO]
+        Line* line = new Line();
+        Vector2D p1, p2;
+
+        cout << "  Definindo Segmento de Reta:" << endl;
+        
+        cout << "  -> Ponto Inicial (X Y): ";
+        cin >> p1; // Usa Vector2D::operator>>
+        
+        cout << "  -> Ponto Final (X Y): ";
+        cin >> p2; // Usa Vector2D::operator>>
+
+        line->setP1(p1);
+        line->setP2(p2);
+        created = line;
+    } 
+    else if (type == 3) { // Polygon (Já modificado anteriormente)
+        Polygon* poly = new Polygon();
+        int n = 0;
+        
+        while (true) {
+            cout << "  Quantos vértices terá o polígono? (Min: 3): ";
+            if (cin >> n && n >= 3) break;
+            cout << "  [!] Entrada inválida. Mínimo 3 vértices." << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
-        created = new Polygon(verts);
-    } else if (type == 4) {
-        double x, y, r; 
-        cout << "  Centro(x y): "; cin >> x >> y;
-        cout << "  Raio: "; cin >> r;
-        created = new Circumference(Vector2D(x, y), r);
+
+        for (int i = 0; i < n; ++i) {
+            Vector2D v;
+            cout << "  -> Vértice " << (i + 1) << " (X Y): ";
+            cin >> v;
+            poly->addVertex(v);
+        }
+        created = poly;
+    } 
+    else if (type == 4) { // Circumference [MODIFICADO]
+        Circumference* circ = new Circumference();
+        Vector2D center;
+        ld radius;
+
+        cout << "  Definindo Circunferência:" << endl;
+
+        cout << "  -> Centro (X Y): ";
+        cin >> center; // Usa Vector2D::operator>>
+
+        cout << "  -> Raio: ";
+        cin >> radius;
+
+        circ->setCenter(center);
+        circ->setRadius(radius);
+        created = circ;
     }
 
-    // Limpar buffer após leitura para evitar problemas com getNumericInput subsequentes
+    // Limpar buffer
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     return created;
 }
@@ -367,15 +406,51 @@ void Menu::manageConvexHull() {
     if (!inputObj) return;
 
     Polygon* inputPoly = dynamic_cast<Polygon*>(inputObj);
-    const vector<Vector2D>& points = inputPoly->getVertices();
+    const vector<Vector2D>& originalPoints = inputPoly->getVertices();
 
-    if (points.size() < 3) {
+    if (originalPoints.size() < 3) {
         cout << "Erro: Necessário pelo menos 3 pontos." << endl;
         if(inputObj->getId() == -1) delete inputObj;
         return;
     }
 
-    Polygon resultHull = ConvexHull::monotoneChain(points);
+    // [NOVO] Opção de Visualização
+    cout << "Deseja visualizar passo-a-passo? (1-Sim / 0-Não): ";
+    int visualize = getNumericInput();
+
+    ConvexHull::StepCallback stepAction = nullptr;
+
+    if (visualize == 1) {
+        cout << ">> [INFO] Feche a janela do gráfico para avançar o passo." << endl;
+        cout << ">> [LEGENDA] Azul: Pontos originais | Laranja: Fecho parcial | Vermelho: Ponto atual" << endl;
+
+        stepAction = [this, originalPoints](const vector<Vector2D>& currHull, const Vector2D& currP) {
+            vector<geometricObject*> frameObjects;
+
+            // 1. Desenha todos os pontos originais como "fundo" (Azul)
+            for (const auto& p : originalPoints) {
+                frameObjects.push_back(new PointWrapper(p.getX(), p.getY()));
+            }
+
+            // 2. Desenha o fecho parcial (Polígono Laranja)
+            if (!currHull.empty()) {
+                frameObjects.push_back(new Polygon(currHull));
+            }
+
+            // 3. Destaca o ponto sendo processado (Vermelho)
+            // Usamos Vector2D padrão que o plotter renderiza como 'ro' (red dot)
+            frameObjects.push_back(new Vector2D(currP.getX(), currP.getY()));
+
+            // Plota
+            plotter.plot(frameObjects);
+
+            // Limpeza
+            for (auto* obj : frameObjects) delete obj;
+        };
+    }
+
+    // Executa o algoritmo com o callback (se houver)
+    Polygon resultHull = ConvexHull::monotoneChain(originalPoints, stepAction);
 
     cout << "\n>> Resultado: Polígono com " << resultHull.getVertices().size() << " vértices." << endl;
     cout << resultHull << endl;
@@ -388,13 +463,6 @@ void Menu::manageConvexHull() {
 
     if(inputObj->getId() == -1) delete inputObj;
 }
-
-// Helper local para forçar o tipo 'Point' (que será plotado em Azul)
-class PointWrapper : public Vector2D {
-public:
-    using Vector2D::Vector2D;
-    geometricObject::Type type() const override { return geometricObject::Type::Point; }
-};
 
 void Menu::manageMinCircle() {
     cout << "\n=== Círculo Mínimo (Welzl Iterativo) ===" << endl;

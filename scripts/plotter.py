@@ -1,5 +1,8 @@
 import os
 import sys
+
+os.environ["QT_LOGGING_RULES"] = "qt.qpa.wayland=false"
+
 import matplotlib
 
 # FIX: Robust Backend Selection
@@ -51,8 +54,11 @@ def plot_objects(shapes):
             try:
                 x = s.get('x', 0)
                 y = s.get('y', 0)
-                ax.arrow(0, 0, x, y, head_width=0.15, head_length=0.1, fc='tab:red', ec='tab:red')
-                ax.plot([x], [y], 'ro', markersize=4)
+                # COMENTE OU REMOVA A LINHA ABAIXO PARA REMOVER A SETA DA ORIGEM
+                # ax.arrow(0, 0, x, y, head_width=0.15, head_length=0.1, fc='tab:red', ec='tab:red')
+                
+                # Mantém apenas o ponto vermelho ('ro')
+                ax.plot([x], [y], 'ro', markersize=6) 
             except Exception as e:
                 print(f"[plotter.py] ERROR in vector processing: {e}", file=sys.stderr)
         else:

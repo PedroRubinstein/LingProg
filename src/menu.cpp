@@ -389,35 +389,78 @@ void Menu::manageConvexHull() {
     if(inputObj->getId() == -1) delete inputObj;
 }
 
+// Helper local para forçar o tipo 'Point' (que será plotado em Azul)
+class PointWrapper : public Vector2D {
+public:
+    using Vector2D::Vector2D;
+    geometricObject::Type type() const override { return geometricObject::Type::Point; }
+};
+
 void Menu::manageMinCircle() {
     cout << "\n=== Círculo Mínimo (Welzl Iterativo) ===" << endl;
     cout << ">> Selecione o Polígono (pontos):" << endl;
     
-    geometricObject* inputObj = getObjectFromUser(3); // Tipo 3 = Polígono
+    geometricObject* inputObj = getObjectFromUser(3);
     if (!inputObj) return;
 
     Polygon* poly = dynamic_cast<Polygon*>(inputObj);
     const auto& points = poly->getVertices();
 
     if (points.empty()) {
-        cout << "Erro: O objeto selecionado não contém pontos." << endl;
+        cout << "Erro: Sem pontos." << endl;
         if(inputObj->getId() == -1) delete inputObj;
         return;
     }
 
-    // Execução do algoritmo
-    Circumference res = MinCircle::find(points);
+    cout << "Deseja visualizar passo-a-passo? (1-Sim / 0-Não): ";
+    int visualize = getNumericInput();
 
-    cout << "\n>> Resultado: " << res << endl;
-    
-    cout << "\nDeseja salvar o resultado no banco? (1-Sim / 0-Não): ";
-    if (getNumericInput() == 1) {
-        // Cria uma nova instância para salvar no DatabaseManager
-        Circumference* toSave = new Circumference(res.getCenter(), res.getRadius());
-        addObject(toSave);
+    MinCircle::StepCallback stepAction = nullptr;
+
+    if (visualize == 1) {
+        cout << ">> [INFO] Feche a janela do gráfico para avançar o passo." << endl;
+        
+        stepAction = [this](const Circumference& c, const vector<Vector2D>& all_pts, const vector<Vector2D>& active_pts) {
+            vector<geometricObject*> frameObjects;
+            
+            // 1. Output no Terminal (Pedido Solicitado)
+            cout << c << endl;
+
+            // 2. Lógica de Destaque
+            for (const auto& p : all_pts) {
+                bool isActive = false;
+                // Verifica se 'p' é um dos pontos ativos (usando distSq para evitar erro de float)
+                for(const auto& a : active_pts) {
+                    if (Vector2D::distSq(p, a) < 1e-9) { 
+                        isActive = true; break; 
+                    }
+                }
+
+                if (isActive) {
+                    // Envia como Vector2D -> Plotter recebe 'vector' -> Vermelho
+                    frameObjects.push_back(new Vector2D(p.getX(), p.getY())); 
+                } else {
+                    // Envia como PointWrapper -> Plotter recebe 'point' -> Azul
+                    frameObjects.push_back(new PointWrapper(p.getX(), p.getY()));
+                }
+            }
+            
+            frameObjects.push_back(new Circumference(c.getCenter(), c.getRadius()));
+            plotter.plot(frameObjects);
+            
+            for (auto* obj : frameObjects) delete obj;
+        };
     }
 
-    // Limpeza de memória se o objeto de entrada foi criado temporariamente
+    Circumference res = MinCircle::find(points, stepAction);
+
+    cout << "\n>> Resultado Final: " << res << endl;
+    
+    cout << "\nDeseja salvar? (1-Sim / 0-Não): ";
+    if (getNumericInput() == 1) {
+        addObject(new Circumference(res.getCenter(), res.getRadius()));
+    }
+
     if(inputObj->getId() == -1) delete inputObj;
 }
 

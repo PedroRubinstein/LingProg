@@ -40,45 +40,48 @@ bool MinCircle::isInside(const Circumference& circ, const Vector2D& p) {
     return abs(p - circ.getCenter()) < circ.getRadius() + EPS;
 }
 
-Circumference MinCircle::find(const vector<Vector2D>& pts) {
+// Em src/algorithms/mincircle.cpp
+
+// ... (includes e código anterior)
+
+Circumference MinCircle::find(const vector<Vector2D>& pts, StepCallback callback) {
     if (pts.empty()) return Circumference(Vector2D(0,0), 0);
     if (pts.size() == 1) return Circumference(pts[0], 0);
 
-    // Copiar pontos para permitir o embaralhamento
     vector<Vector2D> v = pts;
-
-    // Inicializa o gerador de números aleatórios com base no relógio
     mt19937 rng((int) chrono::steady_clock::now().time_since_epoch().count());
     shuffle(v.begin(), v.end(), rng);
 
-    // Círculo inicial vazio
     Circumference ret(Vector2D(0, 0), 0);
 
-    // Algoritmo de Welzl (Iterativo)
+    // Helper atualizado para passar os pontos ativos
+    auto notify = [&](const Circumference& c, const vector<Vector2D>& active) {
+        if (callback) callback(c, v, active);
+    };
+
     for (size_t i = 0; i < v.size(); i++) {
         if (!isInside(ret, v[i])) {
-            // Caso 1: Círculo definido por 1 ponto (raio 0)
             ret = Circumference(v[i], 0);
-            
+            notify(ret, {v[i]}); // Destaque: Ponto I
+
             for (size_t j = 0; j < i; j++) {
                 if (!isInside(ret, v[j])) {
-                    // Caso 2: Círculo definido por 2 pontos (diâmetro)
                     Vector2D center = (v[i] + v[j]) / 2.0;
                     double radius = abs(v[i] - v[j]) / 2.0;
                     ret = Circumference(center, radius);
+                    notify(ret, {v[i], v[j]}); // Destaque: Pontos I, J
 
                     for (size_t k = 0; k < j; k++) {
                         if (!isInside(ret, v[k])) {
-                            // Caso 3: Círculo definido por 3 pontos (circuncentro)
                             Vector2D center3 = getCircumcenter(v[i], v[j], v[k]);
                             double radius3 = abs(center3 - v[i]);
                             ret = Circumference(center3, radius3);
+                            notify(ret, {v[i], v[j], v[k]}); // Destaque: Pontos I, J, K
                         }
                     }
                 }
             }
         }
     }
-
     return ret;
 }

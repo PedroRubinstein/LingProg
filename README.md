@@ -97,7 +97,7 @@ Cartesia/
 
 ## Autores
 
-* **Luís Rafael Sena**
+* **[Luís Rafael Sena](https://github.com/ifuaslaerl)**
 * **Pedro Videira Rubinstein**
 
 Desenvolvido para a disciplina **EEL670**, Setembro de 2025.
